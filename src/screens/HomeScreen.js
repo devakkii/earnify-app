@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
   const [activeButton, setActiveButton] = useState('Home'); // Default active button
+  const [isModalVisible, setModalVisible] = useState(false);
+
+// Function to toggle modal visibility
+const toggleModal = () => {
+  setModalVisible(!isModalVisible);
+};
+
+const renderDailyCheckInModal = () => (
+  <View>
+    <Text style={styles.modalHeading}>Current Streak : 0 Days</Text>
+    {/* <Text style={styles.modalSubText}>Complete 7 Days streak to earn a Bonus.</Text> */}
+    {/* Add any interactive content for check-in boxes here */}
+  </View>
+);
+
 
   const handleFooterButtonPress = (buttonName) => {
     setActiveButton(buttonName); // Update the active button state
@@ -40,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
         {/* Section 1: Daily Check-In and Rewards */}
         <View style={styles.section1}>
           {/* Daily Check-In */}
-          <TouchableOpacity style={styles.dailyCheckin} onPress={() => alert('Daily Check-In!')}>
+          <TouchableOpacity style={styles.dailyCheckin} onPress={toggleModal}>
             <Image source={require('../../assets/daily-checkin.jpg')} style={styles.sectionLogo} />
             {/* <Text style={styles.sectionText}>Daily Check-In</Text> */}
           </TouchableOpacity>
@@ -50,6 +65,9 @@ const HomeScreen = ({ navigation }) => {
             {/* <Text style={styles.sectionText}>Rewards</Text> */}
           </TouchableOpacity>
         </View>
+
+       
+
 
         {/* Section 2: Available Offers */}
         <View style={styles.section2}>
@@ -81,7 +99,7 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Footer Section */}
       <View style={styles.footer}>
-        {['Home', 'Refer', 'Wallet', '₹500'].map((buttonName, index) => (
+        {['Home', '₹10.00', 'Refer', '₹1000'].map((buttonName, index) => (
           <TouchableOpacity
             key={index}
             style={styles.footerButton}
@@ -94,7 +112,7 @@ const HomeScreen = ({ navigation }) => {
                 activeButton === buttonName && styles.activeLineVisible,
               ]}
             />
-            {buttonName === '₹500' ? (
+            {buttonName === '₹1000' ? (
                 <Text style={styles.earnIcon}>🤑</Text> // Earn button with icon
               ) : (
             <Ionicons
@@ -116,9 +134,53 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
+    
+
+    {/* Daily Check-In Modal */}
+
+    <Modal
+    visible={isModalVisible}
+    transparent={true}
+    animationType="slide"
+    onRequestClose={toggleModal}
+  >
+    <View style={styles.modalBackground}>
+      <View style={styles.modalContent}>
+        
+
+      
+        {/* Rounded Cross Button */}
+
+      <TouchableOpacity style={styles.closeIconButton} onPress={toggleModal}>
+        <Ionicons name="close" size={24} color="#ffffff" />
+      </TouchableOpacity>
+           
+            {/* Modal Content */}
+
+        {renderDailyCheckInModal()}
+
+
+        <View style={styles.tophorizontalLine} />
+        <Text style={styles.bottommodalText}>Grab ₹3 on Day 7 → </Text>
+
+        <View style={styles.bottomhorizontalLine} />
+
+                {/* 3D Claim Button */}
+        <TouchableOpacity style={styles.claimButton} onPress={() => alert('Reward Claimed!')}>
+          <Text style={styles.claimButtonText}>Claim</Text>
+        </TouchableOpacity>
+
+      </View>
     </View>
-  );
-};
+  </Modal>
+  </View>
+
+      );
+    };
+   
+      
+  
+  
 
 const styles = StyleSheet.create({
   container: {
@@ -212,19 +274,56 @@ const styles = StyleSheet.create({
     marginTop:50,
   },
   dailyCheckin: {
+    marginTop:-15,
     flex: 1,
-    marginRight: 10,
+    marginLeft:18,
+    margin: 10, // Equal margin on all sides
     alignItems: 'center',
+    backgroundColor: '#ffffff', // White background
+    borderRadius: 15, // Rounded corners for a clean look
+    borderWidth: 1, // Thin border
+    borderColor: 'rgba(0, 150, 136, 0.6)', // Subtle green border
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 3 }, // Equal shadow offset for balance
+    shadowOpacity: 0.2, // Light shadow opacity
+    shadowRadius: 5, // Blur radius for shadow
+    elevation: 6, // Shadow for Android
+    padding: 0, // Inner padding
+    justifyContent: 'center', // Center content
+    width: 100, // Fixed width for uniformity
+    height: 120, // Fixed height for uniformity
   },
   rewards: {
+    marginTop:-15,
     flex: 1,
+    margin: 20,
+    marginRight:20, // Equal margin on all sides
     alignItems: 'center',
+    backgroundColor: '#ffffff', // White background
+    borderRadius: 15, // Rounded corners for a clean look
+    borderWidth: 1, // Thin border
+    borderColor: 'rgba(255, 140, 0, 0.6)', // Subtle orange border
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 3 }, // Equal shadow offset for balance
+    shadowOpacity: 0.2, // Light shadow opacity
+    shadowRadius: 5, // Blur radius for shadow
+    elevation: 6, // Shadow for Android
+    padding: 0, // Inner padding
+    justifyContent: 'center', // Center content
+    width: 100, // Fixed width for uniformity
+    height: 120, // Fixed height for uniformity
   },
   sectionLogo: {
-    width: 110,
-    height: 110,
-    marginBottom: 10,
+    width: 85, // Image size adjusted to fit within the box
+    height: 85,
+    borderRadius: 10, // Rounded image corners
+    overflow: 'hidden', // Ensure image fits within the box
+    marginRight:0,
+    
   },
+  
+  
+  
   sectionText: {
     fontSize: 14,
     color: '#555',
@@ -266,6 +365,104 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#888',
   },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    height: '60%',
+    padding: 20,
+    backgroundColor: '#7bac90',
+    
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 5,
+  },
+  closeButton: {
+    marginTop: -142,
+    padding: 10,
+    marginLeft:185,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    
+  },
+  closeButtonText: {
+    color: '#4b5a57',
+    fontWeight: 'bold',
+  },
+  modalHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop:-5,
+    marginLeft:1,
+    fontFamily:'font-mono',
+    
+  },
+  modalSubText: {
+    fontSize: 14,
+    color: '#555',
+  },
+  closeIconButton: {
+    position: 'absolute', // Position at the top-right corner
+    top: -40, // Adjust vertical spacing
+    right: -2, // Adjust horizontal spacing
+    width: 30,
+    height: 30,
+    borderRadius: 20, // Makes it fully circular
+    backgroundColor: '#5a5a5a', // Your preferred color
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3, // Adds shadow for better visual effect
+  },
+  tophorizontalLine: {
+    height: 1, // Thickness of the line
+    backgroundColor: '#b3b3b3', // Line color (light gray)
+    width: '115%', // Full width of the modal
+    marginVertical: 2, // Spacing between lines and other elements
+  },
+  bottomhorizontalLine: {
+    height: 1,
+    marginVertical: -37,
+    width: '115%',
+    backgroundColor:'#b3b3b3'
+  },
+  bottommodalText:{
+    textAlign: 'center',
+    marginTop: 359,
+    color: '#4c4c4c',
+    fontWeight:'bold',
+    marginRight:72,
+    fontFamily:'font-mono',
+
+  },
+  claimButton: {
+    marginTop: 47, // Adjust spacing as needed
+    marginLeft: 147,
+    backgroundColor: '#00796b', // Button color
+    paddingVertical: 10, // Vertical padding for the button
+    paddingHorizontal: 17, // Horizontal padding
+    borderRadius: 10, // Rounded corners
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 5 }, // Offset for the shadow
+    shadowOpacity: 0.1, // Shadow transparency
+    shadowRadius: 5, // Blur radius
+    elevation: 200, // Shadow for Android
+    alignSelf: 'center', // Center align the button
+  },
+  claimButtonText: {
+    color: '#fff', // Text color
+    fontWeight: 'bold', // Bold text
+    fontSize: 10, // Text size
+    textAlign: 'center', // Center align text
+    textTransform: 'uppercase', // Uppercase text
+    padding:'-10',
+  },
+  
 });
+
 
 export default HomeScreen;

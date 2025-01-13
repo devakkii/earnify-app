@@ -35,18 +35,19 @@ const LoginScreen = () => {
       setErrorMessage('Please accept the terms and conditions.');
       return;
     }
-    else{
+    
       setErrorMessage('')
-    }
+      navigation.navigate('OTP', { phoneNumber }); // Navigate directly to the OTP screen
+    
 
-    Alert.alert(
-      'Confirm Phone Number',
-      `You entered: ${phoneNumber}`,
-      [
-        { text: 'Edit', onPress: () => {} },
-        { text: 'Proceed', onPress: () => navigation.navigate('OTP', { phoneNumber }) },
-      ]
-    );
+    // Alert.alert(
+    //   'Confirm Phone Number',
+    //   `You entered: ${phoneNumber}`,
+    //   [
+    //     { text: 'Edit', onPress: () => {} },
+    //     { text: 'Proceed', onPress: () => navigation.navigate('OTP', { phoneNumber }) },
+    //   ]
+    // );
   };
 
   const isValidPhoneNumber = (number) => {

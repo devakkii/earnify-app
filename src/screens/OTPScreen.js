@@ -22,6 +22,8 @@ const OTPScreen = ({ navigation, route }) => {
   const [timer, setTimer] = useState(30);
   const [resendEnabled, setResendEnabled] = useState(false);
   const [isHelpModalVisible, setIsHelpModalVisible] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+
 
   const otpInputs = useRef([]);
   const phoneNumber = route?.params?.phoneNumber || 'Your Number';
@@ -39,8 +41,12 @@ const OTPScreen = ({ navigation, route }) => {
   const handleResendOtp = () => {
     setTimer(30);
     setOtp(['', '', '', '']);
+    setResendMessage('A new OTP has been sent to your number.');
+    setTimeout(() => {
+      setResendMessage('');
+    }, 4000);
     setResendEnabled(false);
-    Alert.alert('OTP resent!', 'A new OTP has been sent to your number.');
+    
   };
 
   useEffect(() => {
@@ -127,15 +133,20 @@ const OTPScreen = ({ navigation, route }) => {
               </TouchableOpacity>
 
               <View style={styles.resendContainer}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={styles.resendText}>
                   {timer === 0 ? 'Resend OTP' : `Resend in ${timer}s`}
                 </Text>
                 {timer === 0 && (
                   <TouchableOpacity onPress={handleResendOtp}>
-                    <Ionicons name="reload" size={24} color="#00796b" />
+                    <Ionicons name="reload" size={24} color="#00796b" style={{ marginLeft: 8 }} />
                   </TouchableOpacity>
                 )}
               </View>
+              {resendMessage !== '' && (
+                <Text style={styles.resendMessage}>{resendMessage}</Text>
+              )}
+            </View>
             </View>
           </LinearGradient>
         </TouchableWithoutFeedback>
@@ -246,6 +257,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginHorizontal: 8,
   },
+  resendMessage: {
+    marginTop: 10,        // Space below the "Resend OTP" button
+    fontSize: 14,
+    color: '#ff0000',    // Matches the theme
+    textAlign: 'center',
+  },
+  
   submitButton: {
     width: '90%',
     padding: 15,
@@ -258,10 +276,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   resendContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
+    justifyContent: 'center', // Center contents horizontally
+    alignItems: 'center',     // Center contents vertically
+    marginTop: 20,            // Space above the whole section
   },
   resendText: {
     fontSize: 16,
