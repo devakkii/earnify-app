@@ -1,23 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
   const [activeButton, setActiveButton] = useState('Home'); // Default active button
   const [isModalVisible, setModalVisible] = useState(false);
+  const [clickedBox, setClickedBox] = useState(null); // Track clicked box
+  const [isAlertVisible, setIsAlertVisible] = useState(false); // Control alert visibility
+  
+
 
 // Function to toggle modal visibility
 const toggleModal = () => {
   setModalVisible(!isModalVisible);
 };
 
+const logos = [
+  require('../../assets/day1.jpg'),
+  require('../../assets/day2.jpg'),
+  require('../../assets/day3.jpg'),
+  require('../../assets/day4.jpg'),
+  require('../../assets/day5.jpg'),
+  require('../../assets/day6.jpg'),
+  require('../../assets/day7.jpg'),
+];
+
 const renderDailyCheckInModal = () => (
   <View>
     <Text style={styles.modalHeading}>Current Streak : 0 Days</Text>
-    {/* <Text style={styles.modalSubText}>Complete 7 Days streak to earn a Bonus.</Text> */}
-    {/* Add any interactive content for check-in boxes here */}
+    <View style={styles.streakBoxesContainer}>
+      {Array.from({ length: 7 }, (_, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[
+            styles.streakBox,
+            clickedBox === index && { backgroundColor: '#b3e5fc' }, // Highlight clicked box
+          ]}
+          onPress={() => {
+            if (!isAlertVisible) {
+              setClickedBox(index); // Mark the box as clicked
+              setIsAlertVisible(true); // Show alert
+              setTimeout(() => {
+                setIsAlertVisible(false); // Hide alert after 2 seconds
+                alert('Cashback credited!'); // Final alert after timeout
+              }, 2000);
+            }
+          }}
+        >
+          <Image
+            source={logos[index]} // Use the logo based on the index
+            style={styles.boxLogo}
+          />
+        </TouchableOpacity>
+      ))}
+    </View>
   </View>
 );
+
 
 
   const handleFooterButtonPress = (buttonName) => {
@@ -161,7 +200,7 @@ const renderDailyCheckInModal = () => (
 
 
         <View style={styles.tophorizontalLine} />
-        <Text style={styles.bottommodalText}>Grab ₹3 on Day 7 → </Text>
+        <Text style={styles.bottommodalText}>Grab ₹3.00 on Day 7 → </Text>
 
         <View style={styles.bottomhorizontalLine} />
 
@@ -373,9 +412,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    height: '60%',
+    height: '54.25%',
     padding: 20,
-    backgroundColor: '#7bac90',
+    backgroundColor: '#ebfaeb',
     
     borderRadius: 10,
     alignItems: 'center',
@@ -398,7 +437,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop:-5,
-    marginLeft:1,
+    marginLeft:20,
     fontFamily:'font-mono',
     
   },
@@ -422,7 +461,8 @@ const styles = StyleSheet.create({
     height: 1, // Thickness of the line
     backgroundColor: '#b3b3b3', // Line color (light gray)
     width: '115%', // Full width of the modal
-    marginVertical: 2, // Spacing between lines and other elements
+    marginVertical: -30, // Spacing between lines and other elements
+    marginTop:-315,
   },
   bottomhorizontalLine: {
     height: 1,
@@ -432,16 +472,16 @@ const styles = StyleSheet.create({
   },
   bottommodalText:{
     textAlign: 'center',
-    marginTop: 359,
-    color: '#4c4c4c',
-    fontWeight:'bold',
+    marginTop: 350,
+    color: '#000000',
+    fontWeight:'medium',
     marginRight:72,
     fontFamily:'font-mono',
 
   },
   claimButton: {
     marginTop: 47, // Adjust spacing as needed
-    marginLeft: 147,
+    marginLeft: 160,
     backgroundColor: '#00796b', // Button color
     paddingVertical: 10, // Vertical padding for the button
     paddingHorizontal: 17, // Horizontal padding
@@ -461,6 +501,47 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', // Uppercase text
     padding:'-10',
   },
+  streakBoxesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Allows wrapping to the next line
+    justifyContent: 'space-around', // Distributes the boxes evenly
+    marginVertical: 17,
+    marginTop:29,
+    paddingHorizontal: 0,
+    
+    
+  },
+  streakBox: {
+    width: 75, // Box width
+    height: 75, // Box height
+    backgroundColor: '#fff', // White background
+    borderRadius: 10, // Rounded corners
+    justifyContent: 'center', // Centers the content vertically
+    overflow: 'hidden',
+    alignItems: 'center', // Centers the content horizontally
+    marginBottom: 15, // Space between rows
+    elevation: 10, // Adds shadow for 3D effect
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // marginTop:5,
+    
+    borderWidth: 1.5, // Optional border
+    borderColor: 'rgba(13, 13, 13, 0.6)', // Subtle green border
+  },
+  boxLogo: {
+    width: '200%', // Logo width
+    height: "200%", // Logo height
+    resizeMode: 'contain', // Keeps the logo aspect ratio
+  },
+  boxDayText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#00796b',
+    marginTop: 5,
+  },
+  
   
 });
 
