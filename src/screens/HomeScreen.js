@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Header from './Header';
+import Footer from './Footer';
+import HeadingAndBackButtonContainer from './HeadingBackButtonContainer';
 
 const HomeScreen = ({ navigation }) => {
   const [activeButton, setActiveButton] = useState('Home'); // Default active button
@@ -8,13 +11,6 @@ const HomeScreen = ({ navigation }) => {
   const [clickedBox, setClickedBox] = useState(null); // Track clicked box
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Control alert visibility
   
-
-
-// Function to toggle modal visibility
-const toggleModal = () => {
-  setModalVisible(!isModalVisible);
-};
-
 const logos = [
   require('../../assets/day1.jpg'),
   require('../../assets/day2.jpg'),
@@ -24,6 +20,16 @@ const logos = [
   require('../../assets/day6.jpg'),
   require('../../assets/day7.jpg'),
 ];
+
+const handleFooterButtonPress = (buttonName) => {
+  setActiveButton(buttonName); 
+};
+
+// Function to toggle modal visibility
+const toggleModal = () => {
+  setModalVisible(!isModalVisible);
+};
+
 
 const renderDailyCheckInModal = () => (
   <View>
@@ -59,36 +65,16 @@ const renderDailyCheckInModal = () => (
 
 
 
-  const handleFooterButtonPress = (buttonName) => {
-    setActiveButton(buttonName); // Update the active button state
-    // Navigate or perform any other actions as needed
-    // if (buttonName === 'Home') {
-    //   // Do something for Home
-    // } else if (buttonName === 'Refer') {
-    //   // Do something for Refer
-    // } else if (buttonName === 'Contact') {
-    //   // Do something for Contact Us
-    // }
-  };
+  
 
   return (
     <View style={styles.container}>
       {/* Header Section */}
-      <View style={styles.header}>
-        <Image
-          source={require('../../assets/homescreenlogo.png')}
-          style={styles.logo}
-        />
-        <View style={styles.walletContainer}>
-          <View style={styles.walletProfile}>
-            <Ionicons name="wallet" size={23} color="#888" />
-            <Text style={styles.balanceText}>₹10.00</Text>
-          </View>
-          <Ionicons name="person-circle" size={35} color="#888" paddingTop="25" />
-        </View>
-      </View>
+      {activeButton == 'Home' && <Header />}
+     
 
       {/* Main Content Area */}
+      
       { activeButton === 'Home' ? 
       <ScrollView style={styles.mainContent}>
         {/* Section 1: Daily Check-In and Rewards */}
@@ -133,49 +119,31 @@ const renderDailyCheckInModal = () => (
         </View>
       </ScrollView>
        :  (
-        <View style={styles.emptyContent} /> // Render an empty view for other buttons
+        // {/*Contents of Non Home Buttons */}
+
+        <View style={styles.nonHomeContent}>   
+        {/* Combined container */}      
+        
+        <HeadingAndBackButtonContainer 
+        activeButton={activeButton}
+        onPress={() => handleFooterButtonPress('Home')} /> 
+
+        
+        <Text style={styles.welcomeText}>Welcome to the {activeButton} Page</Text>
+        
+        </View>
       )}
 
-      {/* Footer Section */}
-      <View style={styles.footer}>
-        {['Home', '₹10.00', 'Refer', '₹1000'].map((buttonName, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.footerButton}
-            onPress={() => handleFooterButtonPress(buttonName)}
-          >
-            {/* Active Line */}
-            <View
-              style={[
-                styles.activeLine,
-                activeButton === buttonName && styles.activeLineVisible,
-              ]}
-            />
-            {buttonName === '₹1000' ? (
-                <Text style={styles.earnIcon}>🤑</Text> // Earn button with icon
-              ) : (
-            <Ionicons
-              name={
-                buttonName === 'Home'
-                  ? 'home'
-                  : buttonName === 'Refer'
-                  ? 'people-outline'
-                  : 'wallet'
-              }
-              size={20}
-              color={activeButton === buttonName ? '#00796b' : '#5a5a5a'}
-            /> )}
-            <Text
-              style={[styles.footerButtonText, activeButton === buttonName && styles.activeButtonText]}
-            >
-              {buttonName}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <Footer 
+        activeButton={activeButton} 
+        onPress={handleFooterButtonPress} 
+      /> 
+
+   
+
     
 
-    {/* Daily Check-In Modal */}
+   {/* Daily Check-In Modal */} 
 
     <Modal
     visible={isModalVisible}
@@ -200,7 +168,7 @@ const renderDailyCheckInModal = () => (
 
 
         <View style={styles.tophorizontalLine} />
-        <Text style={styles.bottommodalText}>Grab ₹3.00 on Day 7 → </Text>
+        <Text style={styles.bottommodalText}>🎁 Grab ₹3.0 on Day 7 </Text>
 
         <View style={styles.bottomhorizontalLine} />
 
@@ -218,90 +186,14 @@ const renderDailyCheckInModal = () => (
     };
    
       
-  
-  
-
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f7f7f7',
     justifyContent: 'space-between',
     marginTop: 40,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    marginTop: -25,
-    backgroundColor: '#ffffff',
-    position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginBottom: -17,
-  },
-  walletContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletProfile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 4,
-    paddingTop: 24,
-  },
-  balanceText: {
-    color: '#7bac75',
-    fontSize: 16,
-    marginLeft: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 0,
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  footerButton: {
-    alignItems: 'center',
-    padding: 0,
-  },
-  activeLine: {
-    height: 3,
-    width: 0,
-    backgroundColor: '#00796b',
-    marginBottom: 4,
-  },
-  activeLineVisible: {
-    width: 30,
-  },
-  footerButtonText: {
-    color: '#5a5a5a',
-    fontSize: 12,
-    marginTop: 0,
-    marginBottom: 20,
-  },
-  activeButtonText: {
-    color: '#00796b',
-  },
+
   mainContent: {
     flex: 1,
     paddingHorizontal: 16,
@@ -402,7 +294,7 @@ const styles = StyleSheet.create({
   },
   emptyContent: {
     flex: 1,
-    backgroundColor: '#888',
+    backgroundColor: '#ffffff',
   },
   modalBackground: {
     flex: 1,
@@ -414,7 +306,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '54.25%',
     padding: 20,
-    backgroundColor: '#ebfaeb',
+    backgroundColor: '#ffffe6',
     
     borderRadius: 10,
     alignItems: 'center',
@@ -480,8 +372,8 @@ const styles = StyleSheet.create({
 
   },
   claimButton: {
-    marginTop: 47, // Adjust spacing as needed
-    marginLeft: 160,
+    marginTop: 45, // Adjust spacing as needed
+    marginLeft: 168,
     backgroundColor: '#00796b', // Button color
     paddingVertical: 10, // Vertical padding for the button
     paddingHorizontal: 17, // Horizontal padding
@@ -542,7 +434,16 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   
+  welcomeText: {
+    textAlign:'center',
+    marginTop:'100%'
+  },
   
+  nonHomeContent: {
+    flex: 1, 
+    backgroundColor: '#ffffff' // Set background color here
+  },
+
 });
 
 
