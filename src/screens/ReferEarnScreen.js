@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import HeadingBackButtonContainer from './HeadingBackButtonContainer';
 
-const ReferEarnScreen = () => {
+
+const ReferEarnScreen = ({activeButton}) => {
   return (
     <View style={styles.container}>
-      <HeadingBackButtonContainer /> 
-      <Text>Wallet Screen</Text> 
+      {/* <HeadingBackButtonContainer />  */}
+          <Text> This is a Testing.</Text>
+
       {/* ... your WalletScreen content */}
     </View>
   );
@@ -21,4 +22,3 @@ const styles = StyleSheet.create({
 });
 
 export default ReferEarnScreen;
-

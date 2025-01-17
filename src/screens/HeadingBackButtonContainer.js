@@ -8,7 +8,7 @@ const HeadingBackButtonContainer = ({ activeButton , onPress }) => {
     <View style={styles.headingAndBackButtonContainer}> 
             <View style={styles.backButtonContainer}> 
               <TouchableOpacity
-                onPress={() =>  onPress('Home')}
+                onPress={() => onPress('Home')}
               >
                 <Ionicons 
                   name="arrow-back" 

@@ -2,12 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import HeadingBackButtonContainer from './HeadingBackButtonContainer';
 
-const WalletScreen = () => {
+const WalletScreen = ({activeButton}) => {
   return (
     <View style={styles.container}>
-      <HeadingBackButtonContainer /> 
+      {/* <HeadingBackButtonContainer />  */}
       {/* <Text>Wallet Screen</Text>  */}
       {/* ... your WalletScreen content */}
+
+          <Text> This is Mike.</Text>
+    {/* <Text> This is a jhjdh page.</Text> */}
     </View>
   );
 };

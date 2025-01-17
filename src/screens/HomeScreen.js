@@ -3,7 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal, Ale
 import { Ionicons } from '@expo/vector-icons';
 import Header from './Header';
 import Footer from './Footer';
-import HeadingAndBackButtonContainer from './HeadingBackButtonContainer';
+import HeadingBackButtonContainer from './HeadingBackButtonContainer';
+import WalletScreen from './WalletScreen'
+import ReferEarnScreen from "./ReferEarnScreen";
+import PrimeOfferScreen from './PrimeOfferScreen';
 
 const HomeScreen = ({ navigation }) => {
   const [activeButton, setActiveButton] = useState('Home'); // Default active button
@@ -28,6 +31,20 @@ const handleFooterButtonPress = (buttonName) => {
 // Function to toggle modal visibility
 const toggleModal = () => {
   setModalVisible(!isModalVisible);
+};
+
+const renderContent = () => {
+  switch (activeButton) {
+    case 'Wallet':
+      return <WalletScreen />;
+    case 'Refer':
+      return <ReferEarnScreen />;
+    case 'Prime Offer':
+        return <PrimeOfferScreen />;
+    
+    default:
+      return <Text>No Content Available</Text>;
+  }
 };
 
 
@@ -118,21 +135,20 @@ const renderDailyCheckInModal = () => (
           <Text style={styles.comingSoonText}>More earning ways are coming soon!</Text>
         </View>
       </ScrollView>
-       :  (
-        // {/*Contents of Non Home Buttons */}
-
-        <View style={styles.nonHomeContent}>   
-        {/* Combined container */}      
+       :   (
         
-        <HeadingAndBackButtonContainer 
-        activeButton={activeButton}
-        onPress={() => handleFooterButtonPress('Home')} /> 
-
         
-        <Text style={styles.welcomeText}>Welcome to the {activeButton} Page</Text>
-        
+        <View style={styles.nonHomeContent}>
+          <HeadingBackButtonContainer
+            activeButton={activeButton}
+            onPress={() => handleFooterButtonPress('Home')}
+          />
+          <View style={styles.mainContent}>{renderContent()}</View>
         </View>
       )}
+
+        
+      
 
       <Footer 
         activeButton={activeButton} 

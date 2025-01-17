@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './src/screens/LoginScreen';
 import OTPScreen from './src/screens/OTPScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import ReferEarnScreen from './src/screens/ReferEarnScreen';
 
 
 const Stack = createStackNavigator();
@@ -29,6 +30,7 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false }} // Always show header on home screen
         />
+         
        
       </Stack.Navigator>
     </NavigationContainer>
@@ -39,4 +41,3 @@ export default function App() {
  
 
   
-

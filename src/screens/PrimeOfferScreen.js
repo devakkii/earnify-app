@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import HeadingBackButtonContainer from './HeadingBackButtonContainer';
 
-const PrimeOfferScreen = () => {
+const PrimeOfferScreen = ({activeButton}) => {
   return (
     <View style={styles.container}>
-      <HeadingBackButtonContainer /> 
-      <Text>Wallet Screen</Text> 
-      {/* ... your WalletScreen content */}
-    </View>
+      
+          <Text> This is a Testing.</Text>
+          
+      </View>
   );
 };
 
