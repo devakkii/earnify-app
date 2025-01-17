@@ -5,6 +5,9 @@ import LoginScreen from './src/screens/LoginScreen';
 import OTPScreen from './src/screens/OTPScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ReferEarnScreen from './src/screens/ReferEarnScreen';
+import PaymentHistoryScreen from './src/screens/PaymentHistoryScreen';
+import PayoutHistoryScreen from './src/screens/PayoutHistoryScreen';
+import PrimeOfferScreen from './src/screens/PrimeOfferScreen';
 
 
 const Stack = createStackNavigator();
@@ -30,8 +33,6 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false }} // Always show header on home screen
         />
-         
-       
       </Stack.Navigator>
     </NavigationContainer>
   );
