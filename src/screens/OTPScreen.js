@@ -165,10 +165,10 @@ const OTPScreen = ({ navigation, route }) => {
             <Text style={styles.modalBody}>Email us Your Concern at:</Text>
             <TouchableOpacity
         onPress={() => {
-          Linking.openURL('mailto:support@earnify.com?subject=Need%20Help');
+          Linking.openURL('mailto:earnifycare@gmail.com?subject=Need%20Help');
         }}
       >
-        <Text style={styles.emailLink}>support@earnify.com</Text>
+        <Text style={styles.emailLink}>earnifycare@gmail.com</Text>
       </TouchableOpacity>
             <TouchableOpacity style={styles.closeModalButton} onPress={closeHelpModal}>
               <Text style={styles.closeModalText}>Close</Text>

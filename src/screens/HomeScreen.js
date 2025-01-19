@@ -13,6 +13,8 @@ const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [clickedBox, setClickedBox] = useState(null); // Track clicked box
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Control alert visibility
+  const [isPrimeWithdrawn, setIsPrimeWithdrawn] = useState(false);  // State for managing modal visibility
+
   
 const logos = [
   require('../../assets/day1.jpg'),
@@ -40,7 +42,8 @@ const renderContent = () => {
     case 'Refer':
       return <ReferEarnScreen />;
     case 'Prime Offer':
-        return <PrimeOfferScreen />;
+        return <PrimeOfferScreen navigation={navigation} setIsPrimeWithdrawn={setIsPrimeWithdrawn} 
+/>;
     
     default:
       return <Text>No Content Available</Text>;
@@ -139,10 +142,10 @@ const renderDailyCheckInModal = () => (
         
         
         <View style={styles.nonHomeContent}>
-          <HeadingBackButtonContainer
+         {!isPrimeWithdrawn && <HeadingBackButtonContainer
             activeButton={activeButton}
             onPress={() => handleFooterButtonPress('Home')}
-          />
+          />}
           <View style={styles.mainContent}>{renderContent()}</View>
         </View>
       )}
