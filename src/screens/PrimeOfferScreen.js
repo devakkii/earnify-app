@@ -8,9 +8,14 @@ import {
   Easing,
   Dimensions,
   TextInput,
+  ScrollView,
+  Linking,
+ 
 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Add this import at the top
+
+
 
 
 
@@ -21,7 +26,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
   const [selectedTab, setSelectedTab] = useState('tab1');
-  const [balance, setBalance] = useState(0); // Example balance
+  const [balance, setBalance] = useState(1000); // Example balance
   const [isWithdrawVisible, setWithdrawVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(SCREEN_HEIGHT)); // Start below the screen
   const [upiId, setUpiId] = useState(''); // Track UPI ID
@@ -124,10 +129,97 @@ const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
 
       {/* Content Section */}
       <View style={styles.contentContainer}>
-        {selectedTab === 'tab1' && (
-          <Text style={styles.contentText}>This is content for Button 1</Text>
-        )}
+          {selectedTab === 'tab1' && (
+          <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          bounces={false} // Prevents the stretch/bounce effect
+          overScrollMode="never" // Android: disables overscroll
+        >
+        {/* ABOUT */}
+        <Text style={styles.heading}>ABOUT :</Text>
+        <Text style={styles.text}>
+          <Text style={styles.sloganLine}>Earn ₹1000 Instantly—Just Share Earnify!</Text> 
+          </Text>
+          <Text style={styles.text}>
+          <Text>It’s quick, easy, and rewarding! 
+          Share a video about Earnify and earn ₹1000 directly to your Prime Wallet. 
+          No complicated steps—just share and earn! </Text>
+        </Text>
+          
+         {/* Add space between sections */}
+         <View style={styles.sectionSpacing} />
+
+        {/* CONDITION */}
+        <Text style={styles.heading}>CONDITION :</Text>
+        <Text style={styles.text}>
+        <Text style={styles.sloganLine}> 5000 Real Views = ₹1000!</Text>
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.bullet}>•</Text> Showcase Earnify’s features and Prime 
+          Offer in your video.
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.bullet}>•</Text> Eligible social media are YouTube, Facebook, and Instagram.
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.bullet}>•</Text> No fake views—only genuine engagement counts.
+        </Text>
+        <Text style={styles.text}>
+          <Text style={styles.bullet}>•</Text> Video must be public and accessible.
+        </Text>
+         {/* Add space between sections */}
+        <View style={styles.sectionSpacing} />
+
+        {/* HOW TO PARTICIPATE */}
+        <Text style={styles.heading}>HOW TO PARTICIPATE ?</Text>
+        <Text style={styles.text}>
+        <Text style={styles.sloganLine}> Earn ₹1000 in 5 Easy Steps</Text>
+        </Text>
+       
+        <Text style={styles.text}>
+          <Text style={styles.highlightedText}> Step 1:</Text> Create a video about features of Earnify and the Prime Offer.
+        </Text>
+        <Text style={styles.text}>
+        <Text style={styles.highlightedText}> Step 2:</Text> Post the video on your social media 
+          also Include Earnify’s link in the caption, comments, and your bio. 
+          
+        </Text>
+        <Text style={styles.text}>
+        <Text style={styles.highlightedText}> Step 3:</Text> Ensure your video gets 5000 genuine views—no fake engagement allowed!
+        </Text>
+        <Text style={styles.text}>
+        <Text style={styles.highlightedText}> Step 4:</Text> Once you reach 5000 views, 
+          submit your video link, along with your social media handle and registered mobile number to<Text> </Text> 
+          <TouchableOpacity
+        onPress={() => {
+          Linking.openURL('mailto:earnifycare@gmail.com?subject=Request%20For%20Verification');
+        }}
+      >
+        <Text style={styles.emailLink}>earnifycare@gmail.com</Text>
+      </TouchableOpacity>.
+        </Text>
+        <Text style={styles.text}>
+        <Text style={styles.highlightedText}> Step 5:</Text> Wait for verification (within 24 to 72 hours).
+          After successful verification, your ₹1000 will be credited to your Prime Wallet, available for instant redemption!
+        </Text>
+        
+        {/* Add space between sections */}
+        <View style={styles.sectionSpacing} />
+          
+          {/* BONUS */}
+        <Text style={styles.heading}>🎁 Bonus Reward For LIFETIME!</Text>
+        <Text style={styles.text}>
+          Get ₹25 for every new user who joins Earnify through your video link.
+        </Text>
+      </ScrollView>
+    )}
+
         {selectedTab === 'tab2' && (
+        
+            <View style={styles.payoutContainer}>  
+
           <View style={styles.walletContainer}>
             <Text style={styles.walletHeading}>Prime Balance</Text>
             <Text style={styles.walletAmount}>₹{balance}</Text>
@@ -161,8 +253,43 @@ const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
               </TouchableOpacity>
             </View>
           </View>
-        )}
-      </View>
+          
+        
+      
+        {/* Payout Section */}
+        <View>
+        <ScrollView
+        style={styles.payoutScrollView}
+        contentContainerStyle={styles.payoutScrollContainer}
+        showsVerticalScrollIndicator={false}
+        >
+        <Text style={{marginBottom:2, fontWeight:'700', fontSize:23, fontFamily:'sans-serif', color:'darkgrey'}}> Know this💡 </Text>
+        {/* Payout Pointers */}
+        <View style={styles.payoutItem}>
+        <Icon name="lock-open" size={26} color="#a6a6a6" />
+        <Text style={styles.payoutText}>No wallet unlock needed</Text>
+    </View>
+    
+    <View style={styles.payoutItem}>
+      <Icon name="flash-on" size={26} color="#a6a6a6" />
+      <Text style={styles.payoutText}>Instant Prime Amount redemption</Text>
+    </View>
+
+    <View style={styles.payoutItem}>
+      <Icon name="check-circle" size={26} color="#a6a6a6" />
+      <Text style={styles.payoutText}>Check UPI ID carefully</Text>
+    </View>
+
+    <View style={styles.payoutItem}>
+      <Icon name="access-time" size={26} color="#a6a6a6" />
+      <Text style={styles.payoutText}>Transfers reflect in 24–72 hours</Text>
+    </View>
+    </ScrollView>
+    </View>
+   </View> 
+   
+              )}
+
       
 
       {/* Sliding Panel */}
@@ -175,7 +302,7 @@ const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
           {/* Sliding Panel */}
           <Animated.View
             style={[
-              styles.withdrawSlide,
+              styles.withdrawSlide, 
               { transform: [{ translateY: slideAnim }] },
             ]}
           >
@@ -199,12 +326,12 @@ const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
 
-        <Text style={styles.infoText}>Total Prime Amount: ₹{balance}</Text>
+        <Text style={styles.infoText}>Total Prime Amount: <Text style={{fontWeight:350}}>₹{balance}</Text></Text>
         <Text style={styles.infoText}>
-          Processing Fee (5%): ₹{(balance * 0.05).toFixed(2)}
+          Processing Fee (5%): <Text style={{fontWeight:350, color:'red'}}>₹{(balance * 0.05).toFixed(2)}</Text>
         </Text>
         <Text style={styles.infoText}>
-          Amount to Credited: ₹{(balance - balance * 0.05).toFixed(2)}
+          Amount to Credited: <Text style={{fontWeight:350, color:'green'}}>₹{(balance - balance * 0.05).toFixed(2)}</Text>
         </Text>
 
         {/* Proceed Button */}
@@ -217,21 +344,26 @@ const PrimeOfferScreen = ({ navigation,setIsPrimeWithdrawn }) => {
             </TouchableOpacity>
 
       </View>
+      <View style={styles.footerFill} />
+
           </Animated.View>
+
         </>
       )}
+    </View>
     </View>
   );
 };
 
 
 
-const styles = StyleSheet.create({
-  container: {
+export const styles = StyleSheet.create({
+  container:{
     flex: 1,
     backgroundColor: '#ffffff',
     marginTop: 80,
   },
+  
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -242,7 +374,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f2f2f2',
     borderWidth: 1,
     borderColor: '#ccc',
   },
@@ -260,8 +392,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '400',
+    color: '#000',
+    fontFamily:'sans-serif',
   },
   activeButtonText: {
     color: '#ffffff',
@@ -276,25 +409,33 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: 'center',
-    padding: 10,
+    padding: 0,
+    margin:-10,
+
   },
   contentText: {
     fontSize: 16,
     color: '#333',
     textAlign: 'center',
   },
+  payoutContainer:{
+    marginHorizontal:100,
+    
+  },
   walletContainer: {
     backgroundColor: '#f8f9fa',
     borderRadius: 10,
     padding: 20,
-    width: '90%',
+    // paddingBottom
+    width:300,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-    marginTop: 15,
+    marginTop: 28,
+    marginBottom:-15,
   },
   walletHeading: {
     fontSize: 21,
@@ -343,14 +484,38 @@ const styles = StyleSheet.create({
     alignItems:'center',
     width: '100%',
     marginTop: 22,
-    marginRight:30,
+    marginRight:50,
   },
   historyButtonText: {
     fontSize: 13,
     fontWeight: '450',
     color: '#b3b3b3',
     textDecorationLine: 'underline',
-    marginHorizontal: 12,
+    marginHorizontal: 22,
+  },
+  payoutScrollView: {
+    width: '110%',
+    marginTop: 50,
+    marginBottom: 15,
+    marginLeft:-7,
+    
+  },
+  payoutScrollContainer: {
+    paddingBottom: 20,
+    
+  },
+  payoutItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 0,
+    marginLeft:-2,
+  },
+  payoutText: {
+    fontSize: 16,
+    fontWeight:'500',
+    color: '#555',
+    margin: 10,
+    
   },
   withdrawSlide: {
     position: 'absolute',
@@ -377,7 +542,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     position: 'absolute',
-    top: -100,
+    top: -130,
     bottom: 0,
     left: -100,
     right: -100,
@@ -396,7 +561,7 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingTop:30,
     borderRadius: 7, // For rounded corners
-    backgroundColor: '#ffffff', // Default background color (you can change this later)
+    // backgroundColor: '#ffffff', // Default background color (you can change this later)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -426,9 +591,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#555',
     marginBottom: 10,
+    fontWeight:'600',
   },
   proceedButton: {
     marginTop: 30,
@@ -443,6 +609,13 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  footerFill: {
+    backgroundColor: '#ebfaeb', // Your desired background color
+    height: 600, // Or any fixed height to fill space
+    width:'105.5%',
+    marginLeft:-20,
+
+  },
   proceedButtonText: {
     color: '#ffffff',
     fontSize: 16,
@@ -454,7 +627,57 @@ const styles = StyleSheet.create({
     marginTop: -4,
     paddingBottom:12,
   },
+  scrollView: {
+    flex: 1, // Makes ScrollView take up the remaining space
+    marginTop: 25, // Optional: Adjust spacing from the top
+    paddingTop:25,
+  },
+  scrollContainer: {
+    paddingBottom: 150, // Adds space at the bottom to avoid cut-off
+    paddingHorizontal: 0,
+    paddingLeft:8,
+  },
+  heading: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000', // Dark black for heading
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  text: {
+    fontSize: 14,
+    color: '#666', // Grey color for text
+    lineHeight: 22,
+    marginBottom: 10,
+  },
+  highlightedText: {
+    fontWeight: '500',
+    color: '#000', // Dark black for highlighted words
+  },
+  bullet: {
+    fontWeight: 'bold',
+    marginRight: 10,
+    color: '#000', // Dark black for bullet
+  },
+  sectionSpacing: {
+    height: 20, // Adjust this value for the desired spacing
+  },
+  emailLink: {
+    fontSize: 15,
+    color: '#00796b',
+    textDecorationLine: 'underline',
+    marginVertical: -15,
+    marginBottom:-4,
+  },
+  sloganLine:{
+    fontWeight:'600',
+    color:'#999999',
+    marginBottom:-10,
+  },
+      
+
   
+    
   
 });
 

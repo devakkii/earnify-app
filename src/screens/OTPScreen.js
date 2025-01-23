@@ -322,6 +322,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+  emailLink: {
+    fontSize: 16,
+    color: '#00796b',
+    textDecorationLine: 'underline',
+    marginVertical: -15,
+    marginBottom:20,
+  },
+  
 });
 
 export default OTPScreen;
