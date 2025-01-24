@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Clipboard, Alert, Vibration } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Clipboard, Alert, Vibration, Share } from 'react-native';
 
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Icon library
 import { LinearGradient } from 'expo-linear-gradient';
 import Toast, {BaseToast} from 'react-native-toast-message'; // Import Toast
+import * as Linking from 'expo-linking'; // For opening WhatsApp
+
 
 
 
 
 const ReferEarnScreen = ({activeButton}) => {
     const [selectedTab, setSelectedTab] = useState('tab1');
+    const [bonusUnlocked, setBonusUnlocked] = useState(false); // Track if the button is clicked
+
 
 
 
@@ -57,6 +61,37 @@ const ReferEarnScreen = ({activeButton}) => {
         />
       ),
     };
+
+    const handleWhatsAppShare = () => {
+      const message = `Join Earnify with my referral code ${referralCode} and earn rewards! Download the app here: https://example.com`;
+      const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`;
+      Linking.openURL(whatsappUrl).catch(() => {
+        Alert.alert('Error', 'WhatsApp is not installed on your device.');
+      });
+    };
+
+    const handleNativeShare = async () => {
+      try {
+        const result = await Share.share({
+          message: `Hey! Use my referral code "${referralCode}" to join Earnify and get rewards!`,
+        });
+  
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // Shared with specific activity
+            console.log('Shared with activity:', result.activityType);
+          } else {
+            // Shared successfully
+            console.log('Share successful');
+          }
+        } else if (result.action === Share.dismissedAction) {
+          console.log('Share dismissed');
+        }
+      } catch (error) {
+        Alert.alert('Error', error.message);
+      }
+    };
+  
   
 
   return (
@@ -171,25 +206,132 @@ const ReferEarnScreen = ({activeButton}) => {
         
         {/* Placeholder Content */}
         <View style={styles.placeholderContent}>
-        <TouchableOpacity style={styles.referContainer} onPress={handleCopy}>
+         <TouchableOpacity style={styles.referContainer} onPress={handleCopy}> 
       {/* Left Section: Referral Code */}
-      <View style={styles.leftSection}>
+       <View style={styles.leftSection}>
+            <Text style={{fontSize:10}}>Your Referral Code</Text>
         <Text style={styles.referralCodeText}>{referralCode}</Text>
-      </View>
+      </View> 
       {/* Right Section: Copy Symbol */}
-      <View style={styles.rightSection}>
-        <MaterialIcons name="content-copy" size={24} color="#007BFF" />
-      </View>
+       <View style={styles.rightSection}>
+        <MaterialIcons name="content-copy" size={24} color="#557791" />
+      </View> 
     </TouchableOpacity>
-    {/* <Toast/> */}
+    <Toast/>
     <Toast config={toastConfig} />
+
+    {/* {!bonusUnlocked ? (
+            <TouchableOpacity
+              style={[styles.unlockButton, { opacity: 0.6 }]} // Reduced opacity
+              onPress={() => setBonusUnlocked(true)}
+            >
+              <MaterialIcons name="lock" size={20} color="#fff" style={styles.lockIcon} />
+              <Text style={styles.unlockButtonText}>Unlock Referral Bonus</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.offerContainer}>
+              <Text style={styles.offerHeading}>Limited Time Offer</Text>
+              <View style={styles.subHeadingContainer}>
+                <Text style={styles.offerSubHeading}>Offer ends in 30 days</Text>
+                <MaterialIcons name="timer" size={20} color="#ff5722" />
+              </View>
+              <Text style={styles.offerDetails}>
+                Complete 10 successful referrals in 30 days and earn a ₹150 bonus! 🎉
+              </Text>
+            </View>
+          )} */}
 
 
          </View> 
-        
+         <View style={styles.shareSection}>
+  <Text style={styles.shareText}>Share Your Referral Code</Text>
+
+  <View style={styles.buttonRow}>
+
+
+  {/* WhatsApp Button */}
+  <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppShare}>
+    <FontAwesome name="whatsapp" size={20} color="#fff" style={styles.whatsappIcon} />
+    <Text style={styles.whatsappButtonText}>WhatsApp</Text>
+  </TouchableOpacity>
+
+  {/* Share Button */}
+  <TouchableOpacity style={styles.shareButton} onPress={handleNativeShare}>
+    <FontAwesome name="share-alt" size={20} color="#666666" style={styles.shareIcon} />
+    {/* <Text style={styles.shareButtonText}>Share</Text> */}
+  </TouchableOpacity>
+</View>
+</View>
+      
         
       </ScrollView>
     )}
+
+          {selectedTab === 'tab2' && (
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              <View style={styles.lockLine}>
+              <MaterialIcons name="lock" size={16} color="#000" />
+              <Text style={styles.lockText}>Your friends haven't used your referral code yet.</Text>
+              </View>
+              <View style={styles.placeholderContent}>
+         <TouchableOpacity style={styles.referContainer} onPress={handleCopy}> 
+      {/* Left Section: Referral Code */}
+       <View style={styles.leftSection}>
+            <Text style={{fontSize:10}}>Your Referral Code</Text>
+        <Text style={styles.referralCodeText}>{referralCode}</Text>
+      </View> 
+      {/* Right Section: Copy Symbol */}
+       <View style={styles.rightSection}>
+        <MaterialIcons name="content-copy" size={24} color="#557791" />
+      </View> 
+    </TouchableOpacity>
+    <Toast/>
+    <Toast config={toastConfig} />
+
+    {/* {!bonusUnlocked ? (
+            <TouchableOpacity
+              style={[styles.unlockButton, { opacity: 0.6 }]} // Reduced opacity
+              onPress={() => setBonusUnlocked(true)}
+            >
+              <MaterialIcons name="lock" size={20} color="#fff" style={styles.lockIcon} />
+              <Text style={styles.unlockButtonText}>Unlock Referral Bonus</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.offerContainer}>
+              <Text style={styles.offerHeading}>Limited Time Offer</Text>
+              <View style={styles.subHeadingContainer}>
+                <Text style={styles.offerSubHeading}>Offer ends in 30 days</Text>
+                <MaterialIcons name="timer" size={20} color="#ff5722" />
+              </View>
+              <Text style={styles.offerDetails}>
+                Complete 10 successful referrals in 30 days and earn a ₹150 bonus! 🎉
+              </Text>
+            </View>
+          )} */}
+
+
+         </View> 
+         <View style={styles.shareSection}>
+  <Text style={styles.shareText}>Share Your Referral Code</Text>
+
+  <View style={styles.buttonRow}>
+
+
+  {/* WhatsApp Button */}
+  <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppShare}>
+    <FontAwesome name="whatsapp" size={20} color="#fff" style={styles.whatsappIcon} />
+    <Text style={styles.whatsappButtonText}>WhatsApp</Text>
+  </TouchableOpacity>
+
+  {/* Share Button */}
+  <TouchableOpacity style={styles.shareButton} onPress={handleNativeShare}>
+    <FontAwesome name="share-alt" size={20} color="#666666" style={styles.shareIcon} />
+    {/* <Text style={styles.shareButtonText}>Share</Text> */}
+  </TouchableOpacity>
+</View>
+</View>
+            </ScrollView>
+          )}
     </View>
     
   )
@@ -200,6 +342,8 @@ const styles = StyleSheet.create ({
     flex: 1,
     backgroundColor: '#ffffff',
     marginTop: 80,
+    
+    
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -244,8 +388,13 @@ const styles = StyleSheet.create ({
     elevation: 4,
   },
   scrollContainer: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    flexGrow: 1, // Ensures the scroll view grows to fill the available space
+    paddingHorizontal: 10, // Horizontal padding for content
+    paddingVertical: 10, // Vertical padding for content
+    paddingBottom: 60, // Space at the bottom for additional elements like share buttons
+    marginBottom: 20, // Bottom margin to prevent the content from sticking to the bottom
+    
+    
   },
   blueBox: {
     backgroundColor: '#557791', // Blue background color
@@ -256,7 +405,7 @@ const styles = StyleSheet.create ({
     maxHeight: 400, // Allow flexibility for content growth
     width: 308, // Fixed width
     marginTop: 15, // Top margin
-    marginBottom: 7, // Bottom margin
+    marginBottom: 5, // Bottom margin
     overflow: 'hidden', // Prevent text overflow outside the box
   },
   line: {
@@ -329,49 +478,190 @@ const styles = StyleSheet.create ({
   },
   referContainer: {
     flexDirection: 'row', // Divide into two sections
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#f5f5f5',
-    borderColor: '#007BFF',
-    borderWidth: 2,
-    borderRadius: 10,
-    borderStyle:'dashed',
-    padding: 5,
-    margin: 10,
-    shadowColor: '#000',
+    alignItems: 'center', // Align items vertically in the center
+    justifyContent: 'flex-start', // Create space between referral code and copy button
+    backgroundColor: '#f5f5f5', // Light gray background
+    borderColor: '#263540', // Blue border
+    borderWidth: 1, // Reduce border thickness
+    borderRadius: 8, // Slightly smaller rounded corners
+    borderStyle: 'dashed', // Dashed border style
+    padding: 8, // Reduce padding for smaller size
+    margin: 8, // Keep uniform margin
+    marginTop:2,
+    shadowColor: '#000', // Shadow effect
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
-    paddingHorizontal:10,
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3, // Subtle elevation
+    width: '70%', // Adjust width to fit content
+    alignSelf: 'center', // Center the container
+    
   },
+  
   leftSection: {
-    flex: 3,
+    flex: 0, // Allocate more space for the referral code
     justifyContent: 'center',
-    paddingHorizontal:20,
+    paddingHorizontal: 30, // Add some horizontal padding
+    marginRight:8,
   },
   referralCodeText: {
-    fontSize: 18,
+    fontSize: 18, // Slightly smaller text
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'left',
   },
   rightSection: {
-    flex: 1,
-    alignItems: 'center',
+    flex: 0, // Allocate less space for the copy button
+    alignItems: 'flex-end', // Align the button to the right
     justifyContent: 'center',
-    // backgroundColor: '#007BFF',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 40,
     
   },
+  
   copyText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
   },
+  // unlockButton: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   backgroundColor: '#00796b',
+  //   padding: 15,
+  //   borderRadius: 8,
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.3,
+  //   shadowRadius: 3,
+  //   elevation: 5,
+  //   marginHorizontal: 20,
+  //   marginVertical: 10,
+  // },
+  // lockIcon: {
+  //   marginRight: 10,
+  // },
+  // unlockButtonText: {
+  //   color: '#fff',
+  //   fontSize: 16,
+  //   fontWeight: 'bold',
+  // },
+  // offerContainer: {
+  //   backgroundColor: '#f9fbe7',
+  //   padding: 15,
+  //   borderRadius: 8,
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.3,
+  //   shadowRadius: 3,
+  //   elevation: 5,
+  //   marginHorizontal: 0,
+  //   marginVertical: 3,
+
+  // },
+  // offerHeading: {
+  //   fontSize: 18, 
+  //   fontWeight: 'bold',
+  //   color: '#ff5722',
+  //   marginBottom: 5,
+  //   textAlign: 'center',
+  // },
+  // subHeadingContainer: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   marginBottom: 10,
+  // },
+  // offerSubHeading: {
+  //   fontSize: 16,
+  //   color: '#00796b',
+  //   marginRight: 5,
+  // },
+  // offerDetails: {
+  //   fontSize: 14,
+  //   color: '#333',
+  //   textAlign: 'center',
+  // },
+  shareSection: {
+    alignItems: 'center',
+    marginVertical: -5,
+    
+  },
+  shareText: {
+    fontSize: 15,
+    fontWeight: 'semibold',
+    color: '#737373',
+    marginBottom: 15,
+  },
+  buttonRow: {
+    flexDirection: 'row', // Align buttons in a row
+    justifyContent: 'space-between', // Add spacing between buttons
+    alignItems: 'center', // Center align buttons vertically
+  },
+  whatsappButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3cdd77', // WhatsApp green color
+    padding: 7,
+    paddingHorizontal:30,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+    marginRight: 8, // Add spacing between the two buttons
+  },
+  whatsappIcon: {
+    marginRight: 5,
+  },
+  whatsappButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff', // Blue color for share button
+    padding: 8,
+    borderRadius: 8,
+    borderWidth:0.5,
+    borderColor:'#000',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    // elevation: 4,
+  },
+  shareIcon: {
+    marginRight: 5,
+  },
+  shareButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    
+  },
+  lockLine: {
+    flexDirection: 'row', // Align icon and text horizontally
+    alignItems: 'center', // Center icon and text vertically
+    marginVertical: 6, // Margin for spacing
+    marginTop:20,
+  },
+  
+  lockText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#555', // Text color
+    marginLeft: 10, // Space between icon and text
+  },
+  
+  
+  
+  
   
   
   
