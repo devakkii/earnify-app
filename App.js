@@ -7,6 +7,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import PrimeOfferScreen from './src/screens/PrimeOfferScreen';
 import PrimePayoutScreen from './src/screens/PrimePayoutScreen';
 import PrimePaymentScreen from './src/screens/PrimePaymentScreen';
+import WalletScreen from './src/screens/WalletScreen';
+import ReferEarnScreen from './src/screens/ReferEarnScreen';
 
 
 const Stack = createStackNavigator();
@@ -32,6 +34,13 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false }} // Always show header on home screen
         />
+         <Stack.Screen
+          name="Refer"
+          component={ReferEarnScreen}
+          options={{ headerShown: false }} // Always show header on home screen
+        />
+        
+
         <Stack.Screen name="PrimeOffers" component={PrimeOfferScreen} options={{ headerShown: false }} />
 
         <Stack.Screen

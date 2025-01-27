@@ -37,7 +37,7 @@ const ReferEarnScreen = ({activeButton}) => {
       Toast.show({
         type: 'success',
         // text1: 'Copied!',
-        text2: `Referral Code "${referralCode}" has been copied.`,
+        text2: `Referral Code "${referralCode}" copied.`,
         position: 'top', // Position of the toast
       visibilityTime: 1000, // Duration the toast is visible (in ms)
     
@@ -48,9 +48,9 @@ const ReferEarnScreen = ({activeButton}) => {
       success: (props) => (
         <BaseToast
           {...props}
-          style={{ backgroundColor: '#557791', borderLeftColor: '#4caf50', height:40 }} // Green background
+          style={{ backgroundColor: '#557791', borderLeftColor: '#557791', height:30, width:280 }} // Green background
           text1Style={{
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: 'semi-bold',
             color: '#ffffff', // White text for title
           }}
@@ -403,7 +403,8 @@ const styles = StyleSheet.create ({
     borderRadius: 8, // Rounded corners
     minHeight: 325, // Minimum height for box
     maxHeight: 400, // Allow flexibility for content growth
-    width: 308, // Fixed width
+    // width: 308, // Fixed width
+    width:'100%',
     marginTop: 15, // Top margin
     marginBottom: 5, // Bottom margin
     overflow: 'hidden', // Prevent text overflow outside the box
@@ -493,7 +494,7 @@ const styles = StyleSheet.create ({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3, // Subtle elevation
-    width: '70%', // Adjust width to fit content
+    width: "230px", // Adjust width to fit content
     alignSelf: 'center', // Center the container
     
   },
