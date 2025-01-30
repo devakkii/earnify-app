@@ -9,79 +9,56 @@ import PrimePayoutScreen from './src/screens/PrimePayoutScreen';
 import PrimePaymentScreen from './src/screens/PrimePaymentScreen';
 import WalletScreen from './src/screens/WalletScreen';
 import ReferEarnScreen from './src/screens/ReferEarnScreen';
+import RewardsHistoryScreen from './src/screens/RewardsHistoryScreen';
+import PayoutHistoryScreen from './src/screens/PayoutHistoryScreen';
+import { enableScreens } from 'react-native-screens';
 
 
 const Stack = createStackNavigator();
+enableScreens();
+
 
 export default function App() {
-  const [headerVisible, setHeaderVisible] = useState(false); // Initially hide header for login & OTP screens
+  const [headerVisible, setHeaderVisible] = useState(false);
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: headerVisible }}
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: headerVisible }} />
+        <Stack.Screen name="OTP" component={OTPScreen} options={{ headerShown: headerVisible }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Refer" component={ReferEarnScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="PrimeOffers" component={PrimeOfferScreen} options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="PrimePayment" 
+          component={PrimePaymentScreen} 
+          options={{ 
+            headerShown: true, 
+            title: 'Prime History', 
+            headerStyle: { backgroundColor: '#7bac75', height:94.5 }, 
+            headerTintColor: '#ffffff', 
+            headerTitleStyle: { fontWeight: 'semi-bold' },
+            animation: 'slide_from_right' 
+          }} 
         />
-        <Stack.Screen
-          name="OTP"
-          component={OTPScreen}
-          options={{ headerShown: headerVisible }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }} // Always show header on home screen
-        />
-         <Stack.Screen
-          name="Refer"
-          component={ReferEarnScreen}
-          options={{ headerShown: false }} // Always show header on home screen
+        <Stack.Screen 
+          name="PayoutHistory" 
+          component={PrimePayoutScreen} 
+          options={{ 
+            headerShown: true, 
+            title: 'Payout History', 
+            headerStyle: { backgroundColor: '#7bac75', height:94.5 }, 
+            headerTintColor: '#ffffff', 
+            headerTitleStyle: { fontWeight: 'semi-bold' },
+            animation: 'slide_from_right'
+          }} 
         />
         
-
-        <Stack.Screen name="PrimeOffers" component={PrimeOfferScreen} options={{ headerShown: false }} />
-
-        <Stack.Screen
-          name="PrimePayment"
-          component={PrimePaymentScreen}
-          options={{
-            headerShown: true,
-            title: 'Prime History', // Set the header title
-            headerStyle: {
-              backgroundColor: '#7bac75', // Change the header background color
-            },
-            headerTintColor: '#ffffff', // Change the text/icon color in the header
-            headerTitleStyle: {
-              fontWeight: 'semi-bold', // Customize title font style
-            },
-          }}
-        />
-
-        <Stack.Screen
-          name="PayoutHistory"
-          component={PrimePayoutScreen}
-          options={{
-            headerShown: true,
-            title: 'Payout History', // Set the header title
-            headerStyle: {
-              backgroundColor: '#7bac75', // Change the header background color
-            },
-            headerTintColor: '#ffffff', // Change the text/icon color in the header
-            headerTitleStyle: {
-              fontWeight: 'semi-bold', // Customize title font style
-            },
-          }}
-        />
-
+        
+        <Stack.Screen name="WalletRewardsHistory" component={RewardsHistoryScreen} options={{ headerShown: false ,animation: 'slide_from_right'}} />
+        <Stack.Screen name="WalletPayoutHistory" component={PayoutHistoryScreen} options={{ headerShown: false ,animation: 'slide_from_right'}} />
 
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-
- 
-
-  

@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 
-const Footer = ({ activeButton, onPress }) => {
+const Footer = ({ activeButton, onPress , totalBalance}) => {
     
   return (
     <View style={styles.footer}>
@@ -46,7 +46,7 @@ const Footer = ({ activeButton, onPress }) => {
               activeButton === buttonName && styles.activeButtonText,
             ]}
           >
-            ₹10.00 {/* Dynamic wallet balance */}
+            ₹{totalBalance} {/* Dynamic wallet balance */}
           </Text>
         </>
       ) : (

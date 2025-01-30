@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const Header = () => {
+const Header = ({totalBalance}) => {
   return (
     <View style={styles.header}>
         <Image
@@ -12,7 +12,7 @@ const Header = () => {
         <View style={styles.walletContainer}>
           <View style={styles.walletProfile}>
             <Ionicons name="wallet" size={23} color="#888" />
-            <Text style={styles.balanceText}>₹10.00</Text>
+            <Text style={styles.balanceText}>₹{totalBalance}</Text>
           </View>
           <Ionicons name="person-circle" size={35} color="#888" paddingTop="25" />
         </View>

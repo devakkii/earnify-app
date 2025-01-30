@@ -14,6 +14,11 @@ const HomeScreen = ({ navigation }) => {
   const [clickedBox, setClickedBox] = useState(null); // Track clicked box
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Control alert visibility
   const [isPrimeWithdrawn, setIsPrimeWithdrawn] = useState(false);  // State for managing modal visibility
+  const [balance] = useState(30); // Code to set balance in wallet screen wallet 
+  const [pendingReward] = useState(0); // Code to set balance in wallet screen pending reward
+
+    // Compute total balance
+  const totalBalance = balance + pendingReward;
 
   
 const logos = [
@@ -38,7 +43,7 @@ const toggleModal = () => {
 const renderContent = () => {
   switch (activeButton) {
     case 'Wallet':
-      return <WalletScreen />;
+      return <WalletScreen setActiveButton={setActiveButton} balance={balance} pendingReward={pendingReward} />;
     case 'Refer':
       return <ReferEarnScreen />;
     case 'Prime Offer':
@@ -90,7 +95,7 @@ const renderDailyCheckInModal = () => (
   return (
     <View style={styles.container}>
       {/* Header Section */}
-      {activeButton == 'Home' && <Header />}
+      {activeButton == 'Home' && <Header totalBalance={totalBalance}/>}
      
 
       {/* Main Content Area */}
@@ -156,6 +161,7 @@ const renderDailyCheckInModal = () => (
       <Footer 
         activeButton={activeButton} 
         onPress={handleFooterButtonPress} 
+        totalBalance={totalBalance}
       /> 
 
    

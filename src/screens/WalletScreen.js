@@ -4,24 +4,40 @@ import { LinearGradient } from 'expo-linear-gradient'; // Import expo-linear-gra
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Snackbar } from 'react-native-paper';
 import * as Font from 'expo-font';
-
+import { useNavigation } from '@react-navigation/native';
+// import { FontAwesome5 } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 
 const { width } = Dimensions.get('window'); // Get the width of the device screen
 
-const WalletScreen = () => {
-  const [balance] = useState(30); // Hardcoded balance value
-  const [pendingReward] = useState(15); // Hardcoded pending reward value
+
+const WalletScreen = ({setActiveButton,balance,pendingReward}) => {
+ 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [offersCompleted,setOffersCompleted] = useState(1); // Hardcoded offers completed value
+  const [offersCompleted,setOffersCompleted] = useState(2); // Hardcoded offers completed value
   const isWithdrawable =  offersCompleted >= 3; // Check both conditions
+  const [isWalletUnlocked, setIsWalletUnlocked] = useState(false); // Track if wallet is unlocked
+
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
+  const navigation = useNavigation();
 
+  const handleTryOfferPress = () => {
+    setActiveButton('Home'); // Switch back to Home content
+  };
   const handleWithdrawPress = () => {
     console.log("Withdraw pressed");
   };
+
+  // Effect to simulate unlocking the wallet when offersCompleted reaches a certain value
+  useEffect(() => {
+    if (offersCompleted >= 3) {
+      setIsWalletUnlocked(true);
+    }
+  }, [offersCompleted]);
 
   useEffect(() => {
     async function loadFonts() {
@@ -80,45 +96,66 @@ const WalletScreen = () => {
 
         {/* History Links */}
         <View style={styles.historyContainer}>
-          <TouchableOpacity onPress={() => console.log('Navigate to PrimePayment')}>
+          <TouchableOpacity onPress={() => navigation.navigate('WalletRewardsHistory')}>
             <Text style={styles.historyButtonText}>Rewards History {'>'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Navigate to PayoutHistory')}>
+          <TouchableOpacity onPress={() => navigation.navigate('WalletPayoutHistory')}>
             <Text style={styles.historyButtonText}>Transfer History {'>'}</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>
 
       {/* Pending Reward Section */}
-      <View style={styles.pendingRewardContainer}>
+      { pendingReward > 0 && ( <View style={styles.pendingRewardContainer}>
         <View style={styles.rewardHeading}>
         <TouchableOpacity onPress={() => setSnackbarVisible(true)} style={styles.infoButton}>
         <Icon name="info-circle" size={20} color="#b3b3b3" />
         </TouchableOpacity>
-          <Text style={styles.pendingRewardText}>Pending Reward: <Text style={{fontWeight:350}}>₹{pendingReward}</Text></Text>
+          <Text style={styles.pendingRewardText}>Referral Pending Reward: <Text style={{fontWeight:350}}>₹{pendingReward}</Text></Text>
           
         </View>
         <Text style={styles.pendingRewardAmount}></Text>
-      </View>    
+      </View>   
+      )} 
 
       {/* Lock Section */}
       <View style={styles.lockSection}>
-          <Icon name="lock" size={24} color="#000" style={styles.lockIcon} />
+         {isWalletUnlocked ? ( <Feather name="unlock" size={20} color="#000"  style={styles.lockIcon} />
+         ) : (<Feather name="lock" size={24} color="#000" style={styles.lockIcon} />)}
           <View>
-            <Text style={styles.lockText}>Wallet will be unlocked when:</Text>
-            <View style={[styles.conditionContainer, { backgroundColor: '#ffffff' }]}>
-  {/* Row for Icon and Subheading */}
-  <View style={styles.row}>
-  <Image
-      source={require('../../assets/discount.png')} // Replace with the actual path to your image
-      style={styles.icon}
-    />
-    <Text style={styles.conditionHeading}>Complete Any {offersCompleted} Offer</Text>
-  </View>
-  {/* Text below the heading */}
-  <Text style={styles.conditionText}>Try More Offers</Text>
-</View>
-           
+            <Text style={styles.lockText}>
+              {isWalletUnlocked ? 'Wallet is unlocked' : 'Wallet will be unlocked when:'}
+            </Text>
+            <View style={[
+                         isWalletUnlocked ? styles.unlockedConditionContainer : styles.lockedConditionContainer,
+                          { backgroundColor: '#ffffff' }]}>
+              {/* Row for Icon, Text, and Button */}
+              <View style={styles.row}>
+                {/* Offer Icon */}
+                <Image source={require('../../assets/discount.png')} style={styles.icon} />
+                {/* Text Container for Heading and Subheading */}
+                <View style={styles.textContainer}>
+                  <Text style={styles.conditionHeading}>
+                    {isWalletUnlocked
+                      ? 'Offer Completed' // Text after wallet is unlocked
+                      : `Complete Any ${offersCompleted} Offer`}
+                  </Text>
+                  <Text style={styles.conditionText}>Try More Offers</Text>
+                </View>
+
+                {/* Conditionally Render Button or Tick Icon */}
+                {isWalletUnlocked ? (
+                  <MaterialCommunityIcons name="checkbox-marked-circle-outline" size={30} color="green" style={styles.tickIcon} />
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleTryOfferPress} // Ensure 'Home' is correctly set up in your navigation stack
+                    style={styles.tryOfferButton}
+                  >
+                    <Text style={styles.tryOfferButtonText}>Try Offer</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -133,7 +170,7 @@ const WalletScreen = () => {
     style={styles.snackbar}
 
   >
-    This Reward Comes from either Signup Bonus or Referral Bonus. It will remain in pending untill the minimum 3 task completion requirement is met. 
+    When Your friend completes any 3 tasks then you will receive this in your Wallet. 
   </Snackbar>
     </View>
   );
@@ -156,7 +193,7 @@ const styles = StyleSheet.create({
     width: '110%',
     maxWidth: width * 0.9,
     padding: 12,
-    borderRadius: 15,
+    borderRadius: 11,
     justifyContent: 'center',
     alignItems: 'center',
     height: 250,
@@ -185,17 +222,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     paddingVertical: 10,
     paddingHorizontal: 60,
-    borderRadius: 5,
     marginBottom: 10,
     marginTop: 10,
     borderWidth: 0.5,
     borderColor: '#ccc',
-    borderRadius:5,
+    borderRadius:11,
     elevation: 5,
   },
   withdrawButtonDisabled: {
     backgroundColor: '#afc1d0',
     elevation:0,
+    borderRadius:11,
   },
   withdrawButtonText: {
     fontSize: 16,
@@ -266,70 +303,118 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     
+    
     // marginBottom: 10,
     // height:200,
   },
   lockIcon: {
-    marginRight: 10,
-    marginBottom:70,
+    marginRight: 6,
+    marginBottom:90,
+    marginLeft:-9,
     
   },
   lockText: {
     fontSize: 16,
     fontWeight: 'semibold',
     marginRight:5,
-    marginBottom:50,
+    marginBottom:60,
     fontFamily:'RobotoSlab-Medium',
   },
   conditionContainer: {
     width: '115%',
-    marginLeft:-35,
-    height: 65,
+    height: 70,
     borderRadius: 10,
-    borderWidth:0.5,
-    borderColor:'grey',
+    borderWidth: 0.5,
+    borderColor: 'grey',
     justifyContent: 'center',
-    // paddingHorizontal: 5,
-    // marginVertical: 5,
-    marginTop:-40,
-    alignSelf: 'stretch', // Ensure it stretches across the screen
-
+    marginTop: -40,
+    // paddingHorizontal: 6,
+    marginLeft:-35,
+    backgroundColor: '#ffffff',
+    // height: 120, // Set a fixed height to ensure no shrinking
+  
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    // marginBottom: 1, // Space between heading and text
+    justifyContent: 'space-between', // Ensures proper spacing between items
   },
   icon: {
-    marginRight: 10, // Space between icon and text
-    borderWidth:0.5,
-    borderRadius:15,
-    marginLeft:7,
-    marginTop:32,
-    
-    
+    width: 40,
+    height: 40,
+    marginRight: 10,
+    marginLeft:2,
+  },
+  textContainer: {
+    flex: 1, // Allows text to take available space
+    flexDirection: 'column', // Aligns heading and subheading vertically
+    justifyContent: 'center', // Centers vertically
   },
   conditionHeading: {
     fontSize: 12.5,
     fontWeight: 'bold',
     color: '#333',
-    paddingTop:32,
-    
+    marginLeft:-10,
   },
   conditionText: {
     fontSize: 12,
     color: '#555',
-    paddingLeft:'16%',
-    paddingBottom:32,
-    
+    marginTop: 4,
+    marginLeft:-10,
   },
-  snackbar: {
+  tryOfferButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: '#4CAF50',
+    borderRadius: 5,
+    alignItems: 'center',
+    marginRight:10,
+    justifyContent: 'center',
+  },
+  tryOfferButtonText: {
+    color: '#fff',
+    fontWeight: 'semibold',
+    fontSize: 12,
+  },
+  tickIcon: {
+    marginRight:20,
+   
+  },
+  
+   snackbar: {
     backgroundColor: '#333',
     position: 'absolute',
     bottom: 70, // Keep it anchored at the bottom
     left: 0,
     right: 0,
   },
+  unlockedConditionContainer: {
+    width: '180%',
+    height: 70,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: 'grey',
+    justifyContent: 'center',
+    marginTop: -40,
+    // paddingHorizontal: 6,
+    marginLeft:-26,
+    backgroundColor: '#ffffff',
+    // height: 120, // Set a fixed height to ensure no shrinkin
+  },
+  lockedConditionContainer: {
+    width: '115%',
+    height: 70,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: 'grey',
+    justifyContent: 'center',
+    marginTop: -40,
+    // paddingHorizontal: 6,
+    marginLeft:-35,
+    backgroundColor: '#ffffff',
+    // height: 120, // Set a fixed height to ensure no shrinking
+  },
+
 });
 
 export default WalletScreen;
