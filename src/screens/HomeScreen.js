@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
   const [isAlertVisible, setIsAlertVisible] = useState(false); // Control alert visibility
   const [isPrimeWithdrawn, setIsPrimeWithdrawn] = useState(false);  // State for managing modal visibility
   const [balance] = useState(30); // Code to set balance in wallet screen wallet 
-  const [pendingReward] = useState(0); // Code to set balance in wallet screen pending reward
+  const [pendingReward] = useState(10); // Code to set balance in wallet screen pending reward
 
     // Compute total balance
   const totalBalance = balance + pendingReward;
