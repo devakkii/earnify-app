@@ -13,6 +13,7 @@ import RewardsHistoryScreen from "./src/screens/RewardsHistoryScreen";
 import PayoutHistoryScreen from "./src/screens/PayoutHistoryScreen";
 import { enableScreens } from "react-native-screens";
 import Toast from "react-native-toast-message";
+import { useFonts } from "expo-font";
 
 const Stack = createStackNavigator();
 enableScreens();

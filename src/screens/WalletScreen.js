@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Toast from "react-native-toast-message";
 import { ActivityIndicator } from "react-native";
 
+// import AppLoading from "expo-app-loading"; // Helps to prevent UI flickering
+
 import {
   View,
   Text,
@@ -19,10 +21,11 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { Snackbar } from "react-native-paper";
 import * as Font from "expo-font";
 import { useNavigation } from "@react-navigation/native";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
-
+import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
+import PopupNotification from "./PopupNotification";
 import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Montserrat_100Thin } from "@expo-google-fonts/montserrat";
 
 const { width } = Dimensions.get("window"); // Get the width of the device screen
 
@@ -38,11 +41,19 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
   const [savedUpiId, setSavedUpiId] = useState(""); // Stores the verified UPI ID
   const [selectedUpi, setSelectedUpi] = useState(null); // Tracks selected UPI ID
   const [loading, setLoading] = useState(false);
-
+  const [isPressed, setIsPressed] = useState(false);
   const [verifiedUpiIds, setVerifiedUpiIds] = useState([]); // Store multiple UPI IDs
   const [modalHeight, setModalHeight] = useState(new Animated.Value(480)); // initial height of modal
   const isWithdrawable = offersCompleted >= 3; // Check both conditions
-
+  const isDisabled = !selectedUpi || !selectedAmount; // ✅ Disable logic
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [countdown, setCountdown] = useState(5); // Initial countdown value
+  const progressAnim = useRef(new Animated.Value(0)).current; // Progress bar animation
+  const [showProcessing, setShowProcessing] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState("success");
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   const navigation = useNavigation();
@@ -58,13 +69,65 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
   //   // setModalHeight(new Animated.Value(height)); // Set the modal height dynamically
   // };
 
+  // Start the countdown when withdrawal begins
+  useEffect(() => {
+    if (isProcessing) {
+      setCountdown(5); // Reset countdown when starting
+      // setShowProcessing(true); // Ensure the "Processing" UI is shown
+
+      // Animate progress bar over 5 seconds
+      Animated.timing(progressAnim, {
+        toValue: 100, // Target width percentage
+        duration: 5000, // 5 seconds
+        useNativeDriver: false, // Required for width animation
+      }).start();
+
+      // Start countdown
+      const interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev < 1) {
+            clearInterval(interval); // Stop countdown at 0
+            setIsCompleted(true); // Show success screen
+
+            // setShowProcessing(false); // Switch to final UI state
+            setIsProcessing(false);
+            return 0;
+          }
+          return prev - 1; // Decrease countdown
+        });
+      }, 1000); // Runs every second
+
+      // Cleanup function to clear the interval
+      return () => clearInterval(interval);
+    }
+  }, [isProcessing]);
+
+  const handleDone = () => {
+    // Reset to initial state when "Done" is clicked
+    setIsCompleted(false);
+    setIsProcessing(false);
+    setCountdown(5);
+    progressAnim.setValue(0);
+    setWithdrawModalVisible(false);
+  };
+
+  // Handle Withdraw Click in Modal
+  const handleWithdraw = () => {
+    setIsProcessing(true);
+    setIsCompleted(false);
+
+    // setShowProcessing(false); // Reset withdrawn status before starting new process
+
+    progressAnim.setValue(0); // Reset progress before starting animation
+  };
+
   const handleTryOfferPress = () => {
     setActiveButton("Home"); // Switch back to Home content
   };
   const handleWithdrawPress = () => {
     console.log("Withdraw pressed");
     setWithdrawModalVisible(true);
-    setModalHeight(new Animated.Value(400)); // Reset the modal height to initial value
+    setModalHeight(new Animated.Value(445)); // Reset the modal height to initial value
     // Trigger the opening animation for the modal (e.g., slide down or up)
     Animated.timing(slideAnim, {
       toValue: 0, // Move modal to its normal position (or top)
@@ -74,6 +137,9 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
   };
 
   const closeWithdrawModal = () => {
+    setIsProcessing(false);
+    setIsCompleted(false);
+
     setSelectedPaymentMode(null); // Unselect radio button
     setShowUpiInput(false);
     setUpiId("");
@@ -92,17 +158,19 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
   const handlePaymentModeChange = (mode) => {
     setSelectedPaymentMode(mode);
     Animated.timing(modalHeight, {
-      toValue: 480, // Expand the modal upward
+      toValue: 534, // Expand the modal upward
       duration: 300,
       useNativeDriver: false,
     }).start();
   };
 
   const handleAddUpiId = () => {
-    setShowUpiInput(true); // Show input field when button is clicked
+    // setShowUpiInput(true); // Show input field when button is clicked
+    setShowUpiInput((prev) => !prev);
+
     // Animate modal height upward again when Add UPI button is clicked
     Animated.timing(modalHeight, {
-      toValue: 535, // Further expand the modal
+      toValue: 575, // Further expand the modal
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -112,111 +180,70 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
     setUpiId("");
     // Trigger layout animation when the verified UPI section becomes visible
     Animated.timing(modalHeight, {
-      toValue: verifiedUpiIds ? 575 : 535, // Adjust modal height when UPI is verified
+      toValue: verifiedUpiIds ? 633 : 575, // Adjust modal height when UPI is verified
       duration: 300,
       useNativeDriver: false,
     }).start();
   }, [verifiedUpiIds]); // When verifiedUpiId changes, trigger animation
 
   const handleVerifyUpi = () => {
-    if (!upiId.includes("@")) {
-      Toast.show({
-        type: "error",
-        text1: "Invalid UPI ID ❌",
-        text2: "It must contain '@'",
-        visibilityTime: 3000,
-        position: "bottom",
-        bottomOffset: 50,
-        text1Style: {
-          fontSize: 16,
-          fontWeight: "bold",
-          color: "#fff", // White text color for error
-        },
-        text2Style: {
-          fontSize: 13,
-          color: "#fff", // White text color for error details
-        },
-        style: {
-          backgroundColor: "#f44336", // Red background for error
-          borderRadius: 8,
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          shadowColor: "#000", // Shadow effect for toast
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.8,
-          shadowRadius: 2,
-        },
-      });
-      return;
-    }
+    setLoading(true); // Start loading
 
-    if (verifiedUpiIds.length >= 3) {
-      Toast.show({
-        type: "error",
-        text1: "Limit Reached ⚠️",
-        text2: "You can only add up to 3 UPI IDs",
-        visibilityTime: 3000,
-        position: "bottom",
-        bottomOffset: 50,
-        text1Style: {
-          fontSize: 16,
-          fontWeight: "bold",
-          color: "#fff", // White text color for warning
-        },
-        text2Style: {
-          fontSize: 13,
-          color: "#fff", // White text color for warning details
-        },
-        style: {
-          backgroundColor: "#ff9800", // Orange background for warning
-          borderRadius: 8,
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          shadowColor: "#000", // Shadow effect for toast
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.8,
-          shadowRadius: 2,
-        },
-      });
-      return;
-    }
-
-    // ✅ Show Loading Indicator for 3 seconds before verification
-    setLoading(true); // Start loading animation
     setTimeout(() => {
-      setLoading(false); // Stop loading after 3 seconds
+      // Simulate verification delay
+      if (upiId.includes("@")) {
+        setPopupMessage(
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Icon
+              name="check-circle"
+              size={20}
+              color="#4CAF50"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={{ color: "#f2f2f2", fontSize: 14 }}>
+              Verification Successful
+            </Text>
+          </View>
+        );
+        setPopupType("success");
 
-      if (!verifiedUpiIds.includes(upiId)) {
-        setVerifiedUpiIds([...verifiedUpiIds, upiId]);
+        setVerifiedUpiIds((prevVerifiedUpis) => {
+          if (!prevVerifiedUpis.includes(upiId)) {
+            return [...prevVerifiedUpis, upiId]; // Add UPI only after loading
+          }
+          return prevVerifiedUpis;
+        });
+
+        setUpiId(""); // Clear input field after successful verification
+        setShowUpiInput(false);
+      } else {
+        setPopupMessage(
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <AntDesign
+              name="exclamationcircleo"
+              size={20}
+              color="#ff1a1a"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={{ color: "#f2f2f2", fontSize: 14 }}>Invalid UPI</Text>
+          </View>
+        );
+        setPopupType("error");
       }
 
-      Toast.show({
-        type: "success",
-        text1: "Verified Successfully ✅",
-        visibilityTime: 3000,
-        position: "bottom",
-        bottomOffset: 50,
-        text1Style: {
-          fontSize: 16,
-          fontWeight: "bold",
-          color: "#fff", // White text for success
-        },
-        style: {
-          backgroundColor: "#4caf50", // Green background for success
-          borderRadius: 8,
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          shadowColor: "#000", // Shadow effect for toast
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.8,
-          shadowRadius: 2,
-        },
-      });
+      setLoading(false); // Stop loading
+      setPopupVisible(true);
 
-      setUpiId(""); // Clear input field after verification
-    }, 3000); // Wait for 3 seconds
+      setTimeout(() => {
+        setPopupVisible(false);
+      }, 2000);
+    }, 2000); // Simulating a 2s verification delay
   };
-
   // Effect to simulate unlocking the wallet when offersCompleted reaches a certain value
   useEffect(() => {
     if (offersCompleted >= 3) {
@@ -229,6 +256,8 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
       await Font.loadAsync({
         "RobotoSlab-Regular": require("../../assets/fonts/RobotoSlab-Regular.ttf"),
         "RobotoSlab-Medium": require("../../assets/fonts/RobotoSlab-Medium.ttf"),
+        MontserratRegular: require("../../assets/Montserrat/Montserrat-Regular.ttf"),
+        MontserratBold: require("../../assets/Montserrat/Montserrat-Regular.ttf"),
       });
       setFontsLoaded(true);
     }
@@ -411,208 +440,307 @@ const WalletScreen = ({ setActiveButton, balance, pendingReward }) => {
                 <Entypo name="cross" style={styles.closeButton} />
               </TouchableOpacity>
             </View>
-
-            {/* Light Blue Background Container */}
-            <ScrollView
-              style={{
-                width: "112.5%",
-                marginLeft: -20,
-                paddingHorizontal: 10,
-              }}
-            >
-              <View style={styles.lightBlueContainer}>
-                <Text style={styles.selectPaymentModeHeading}>
-                  Select Payment Mode
-                </Text>
-
-                <View style={styles.paymentModeContainer}>
-                  <Image
-                    source={require("../../assets/bhimupi.png")}
-                    style={styles.upiLogo}
-                  />
-                  {/* Radio Button for Payment Mode Selection */}
-                  <TouchableOpacity
-                    onPress={() => handlePaymentModeChange("bhimUPI")}
+            {/* Conditionally Render Light Blue Container & Withdraw Button */}
+            {isProcessing ? (
+              <>
+                <View style={styles.processingContainer}>
+                  <Text style={styles.processingText}>
+                    Processing transfer in {countdown}s
+                  </Text>
+                  {/* Progress Bar */}
+                  <View
+                    style={{
+                      width: 270,
+                      height: 17,
+                      backgroundColor: "#e0e0e0", // Grey background
+                      borderRadius: 15,
+                      overflow: "hidden",
+                      marginTop: 50,
+                      marginRight: 10,
+                    }}
                   >
-                    <View
-                      style={[
-                        styles.radioButton,
-                        selectedPaymentMode === "bhimUPI" &&
-                          styles.selectedRadio,
-                      ]}
-                    >
-                      {selectedPaymentMode === "bhimUPI" && (
-                        <View style={styles.innerCircle} />
-                      )}
-                    </View>
+                    <Animated.View
+                      style={{
+                        width: progressAnim.interpolate({
+                          inputRange: [0, 100],
+                          outputRange: ["0%", "100%"], // Fill the bar progressively
+                        }),
+                        height: "100%",
+                        backgroundColor: "#4caf50", // Green progress bar
+                      }}
+                    />
+                  </View>
+                </View>
+              </>
+            ) : isCompleted ? (
+              // Final UI after processing
+              <>
+                <View style={styles.completedContainer}>
+                  {/* <Image
+                    source={require("../../assets/successIcon.png")}
+                    style={styles.icon}
+                  /> */}
+                  <Text style={styles.completedHeading}>
+                    Transfer Successful!
+                  </Text>
+                  <Text style={styles.completedSubheading}>
+                    Your amount has been transferred successfully.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={handleDone}
+                    style={styles.doneButton}
+                  >
+                    <Text style={styles.doneButtonText}>Done</Text>
                   </TouchableOpacity>
                 </View>
-
-                {/* New UPI ID Container (Visible Only When BHIM UPI is Selected) */}
-                {selectedPaymentMode === "bhimUPI" && (
-                  <View style={styles.upiContainer}>
-                    <Text style={styles.upiHeading}>Select UPI ID</Text>
-                    {/* Show Add UPI ID button & input only if less than 3 UPI IDs */}
-                    {verifiedUpiIds.length < 3 && (
-                      <>
-                        {/* Add UPI ID Section */}
-                        <TouchableOpacity
-                          style={styles.addUpiContainer}
-                          onPress={handleAddUpiId}
-                        >
-                          <FontAwesome
-                            name={
-                              showUpiInput
-                                ? "chevron-circle-down"
-                                : "plus-circle"
-                            }
-                            style={styles.plusIcon}
-                          />
-                          <Text style={styles.addUpiText}>Add UPI ID</Text>
-                        </TouchableOpacity>
-
-                        {/* Show Input Field when button is clicked */}
-                        {showUpiInput && (
-                          <View style={styles.upiInputContainer}>
-                            <TextInput
-                              style={styles.upiInput}
-                              placeholder="Enter UPI ID"
-                              placeholderTextColor="#b3b3b3"
-                              value={upiId}
-                              onChangeText={setUpiId}
-                            />
-
-                            {/* Loading indicator displayed while verifying */}
-                            {loading && (
-                              <ActivityIndicator
-                                size="small"
-                                color="#007BFF"
-                                style={{ marginTop: 10 }}
-                              />
-                            )}
-                            <TouchableOpacity onPress={handleVerifyUpi}>
-                              <Text style={styles.verifyButtonText}>
-                                Verify
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        )}
-                      </>
-                    )}
-
-                    {/* Show verified UPI ID with selection radio button */}
-                    {verifiedUpiIds.length > 0 && (
-                      <View style={{ marginVertical: 10 }}>
-                        {verifiedUpiIds.map((upi, index) => (
-                          <View
-                            key={index}
-                            style={{
-                              flexDirection: "row", // Align items horizontally
-                              alignItems: "center", // Align items vertically in center
-                              marginBottom: 10, // Space between each UPI entry
-                            }}
-                          >
-                            {/* TouchableOpacity only around the radio button */}
-                            <TouchableOpacity
-                              onPress={() => setSelectedUpi(upi)}
-                              style={{
-                                width: 20,
-                                height: 20,
-                                borderRadius: 10,
-                                borderWidth: 1.5,
-                                borderColor: "#4caf50", // Border color for the radio button
-                                justifyContent: "center", // Center inner circle vertically
-                                alignItems: "center", // Center inner circle horizontally
-                                padding: 3,
-                                marginLeft: 10,
-                                marginRight: 10, // Space between the radio button and the text
-                              }}
-                            >
-                              {selectedUpi === upi && (
-                                <View
-                                  style={{
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: 6,
-                                    backgroundColor: "#4caf50", // Inner circle color
-                                  }}
-                                />
-                              )}
-                            </TouchableOpacity>
-
-                            {/* Display the UPI ID */}
-                            <Text style={{ fontSize: 16, color: "#333" }}>
-                              {upi}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                )}
-
-                {/* Heading for Amount Selection */}
-                <Text style={styles.amountSelectionHeading}>
-                  Select Amount to be Transferred
-                </Text>
-
-                {/* Horizontally Scrollable Section */}
+              </>
+            ) : (
+              <>
+                {/* Light Blue Background Container */}
                 <ScrollView
-                  horizontal
-                  contentContainerStyle={styles.amountContainer}
+                  style={{
+                    width: "112.5%",
+                    marginLeft: -20,
+                    paddingHorizontal: 10,
+                  }}
+                  showsVerticalScrollIndicator={false} // Hide vertical scrollbar
                 >
-                  {[10, 20, 30, 50, 100, 200, 300, 400, 500].map((amount) => {
-                    const isEnabled = amount <= balance;
-                    const isSelected = selectedAmount === amount; // Check if this amount is selected
+                  <View style={styles.lightBlueContainer}>
+                    <Text style={styles.selectPaymentModeHeading}>
+                      Select Payment Mode
+                    </Text>
 
-                    return (
+                    <View style={styles.paymentModeContainer}>
+                      <Image
+                        source={require("../../assets/bhimupi.png")}
+                        style={styles.upiLogo}
+                      />
+                      {/* Radio Button for Payment Mode Selection */}
                       <TouchableOpacity
-                        key={amount}
-                        style={[
-                          styles.amountBox,
-                          !isEnabled && styles.disabledAmountBox, // Disable styling
-                          isSelected && styles.selectedAmountBox, // Selected styling
-                        ]}
-                        onPress={() => {
-                          if (isEnabled) {
-                            setSelectedAmount((prev) =>
-                              prev === amount ? null : amount
-                            ); // Toggle selection
-                          }
-                        }}
-                        disabled={!isEnabled}
+                        onPress={() => handlePaymentModeChange("bhimUPI")}
                       >
-                        <Text
+                        <View
                           style={[
-                            styles.amountText,
-                            !isEnabled && styles.disabledAmountText, // Disabled text
-                            isSelected && styles.selectedAmountText, // Selected text
+                            styles.radioButton,
+                            selectedPaymentMode === "bhimUPI" &&
+                              styles.selectedRadio,
                           ]}
                         >
-                          ₹{amount}
-                        </Text>
+                          {selectedPaymentMode === "bhimUPI" && (
+                            <View style={styles.innerCircle} />
+                          )}
+                        </View>
                       </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-            </ScrollView>
+                    </View>
 
-            {/* Fixed Withdraw Button */}
-            <TouchableOpacity
-              style={[
-                styles.modalWithdrawButton,
-                (!selectedUpi || !selectedAmount) && {
-                  backgroundColor: "#ccc",
-                }, // Greyed out when disabled
-              ]}
-              onPress={() => console.log("Withdraw initiated")}
-              disabled={!selectedUpi || !selectedAmount} // Disable button if UPI or Amount is not selected
-            >
-              <Text style={styles.modalWithdrawButtonText}>
-                Withdraw Amount
-              </Text>
-            </TouchableOpacity>
+                    {/* New UPI ID Container (Visible Only When BHIM UPI is Selected) */}
+                    {selectedPaymentMode === "bhimUPI" && (
+                      <View style={styles.upiContainer}>
+                        <Text style={styles.upiHeading}>Select UPI ID</Text>
+                        {/* Show Add UPI ID button & input only if less than 3 UPI IDs */}
+                        {verifiedUpiIds.length < 3 && (
+                          <>
+                            {/* Add UPI ID Section */}
+                            <TouchableOpacity
+                              style={styles.addUpiContainer}
+                              onPress={handleAddUpiId}
+                            >
+                              <FontAwesome
+                                name={
+                                  showUpiInput
+                                    ? "chevron-circle-down"
+                                    : "plus-circle"
+                                }
+                                style={styles.plusIcon}
+                              />
+                              <Text style={styles.addUpiText}>Add UPI ID</Text>
+                            </TouchableOpacity>
+
+                            {/* Show Input Field when button is clicked */}
+                            {showUpiInput && (
+                              <View style={styles.upiInputContainer}>
+                                <TextInput
+                                  style={styles.upiInput}
+                                  placeholder="Enter UPI ID"
+                                  placeholderTextColor="#b3b3b3"
+                                  value={upiId}
+                                  onChangeText={setUpiId}
+                                />
+
+                                {/* Loading indicator displayed while verifying */}
+                                {loading && (
+                                  <ActivityIndicator
+                                    size="small"
+                                    color="#007BFF"
+                                    style={{ marginTop: 2 }}
+                                  />
+                                )}
+                                <TouchableOpacity onPress={handleVerifyUpi}>
+                                  <Text style={styles.verifyButtonText}>
+                                    Verify
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            )}
+                          </>
+                        )}
+
+                        {/* Show verified UPI ID with selection radio button */}
+                        {verifiedUpiIds.length > 0 && (
+                          <View style={{ marginVertical: 10 }}>
+                            {verifiedUpiIds.map((upi, index) => (
+                              <View
+                                key={index}
+                                style={{
+                                  flexDirection: "row", // Align items horizontally
+                                  alignItems: "center", // Align items vertically in center
+                                  marginBottom: 10, // Space between each UPI entry
+                                }}
+                              >
+                                {/* TouchableOpacity only around the radio button */}
+                                <TouchableOpacity
+                                  onPress={() => setSelectedUpi(upi)}
+                                  activeOpacity={1} // Ensures no opacity effect when clicking
+                                  style={{
+                                    flexDirection: "row", // Arrange radio and text in a row
+                                    alignItems: "center", // Align items vertically in center
+                                    // paddingVertical: 10, // Add padding for better touch response
+                                  }}
+                                >
+                                  {/* Radio Button */}
+                                  <View
+                                    style={{
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: 10,
+                                      borderWidth: 1.5,
+                                      borderColor: "#4caf50", // Border color for the radio button
+                                      justifyContent: "center", // Center inner circle vertically
+                                      alignItems: "center", // Center inner circle horizontally
+                                      marginLeft: 10,
+                                      marginRight: 10, // Space between the radio button and the text
+                                    }}
+                                  >
+                                    {selectedUpi === upi && (
+                                      <View
+                                        style={{
+                                          width: 12,
+                                          height: 12,
+                                          borderRadius: 6,
+                                          backgroundColor: "#4caf50", // Inner circle color
+                                        }}
+                                      />
+                                    )}
+                                  </View>
+
+                                  {/* UPI Text (Also Clickable) */}
+                                  <Text style={{ fontSize: 16, color: "#333" }}>
+                                    {upi}
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    )}
+
+                    {/* Heading for Amount Selection */}
+                    <Text style={styles.amountSelectionHeading}>
+                      Select Amount to be Transferred
+                    </Text>
+
+                    {/* Horizontally Scrollable Section */}
+                    <ScrollView
+                      horizontal
+                      contentContainerStyle={styles.amountContainer}
+                    >
+                      {[10, 20, 30, 50, 100, 200, 300, 400, 500].map(
+                        (amount) => {
+                          const isEnabled = amount <= balance;
+                          const isSelected = selectedAmount === amount; // Check if this amount is selected
+
+                          return (
+                            <TouchableOpacity
+                              key={amount}
+                              style={[
+                                styles.amountBox,
+                                !isEnabled && styles.disabledAmountBox, // Disable styling
+                                isSelected && styles.selectedAmountBox, // Selected styling
+                              ]}
+                              onPress={() => {
+                                if (isEnabled) {
+                                  setSelectedAmount((prev) =>
+                                    prev === amount ? null : amount
+                                  ); // Toggle selection
+                                }
+                              }}
+                              disabled={!isEnabled}
+                            >
+                              <Text
+                                style={[
+                                  styles.amountText,
+                                  !isEnabled && styles.disabledAmountText, // Disabled text
+                                  isSelected && styles.selectedAmountText, // Selected text
+                                ]}
+                              >
+                                ₹{amount}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        }
+                      )}
+                    </ScrollView>
+                  </View>
+                </ScrollView>
+                {/* Popup Notification Just Above Withdraw Button */}
+                <View>
+                  <PopupNotification
+                    message={popupMessage}
+                    type={popupType}
+                    isVisible={popupVisible}
+                    onHide={() => setPopupVisible(false)}
+                  />
+                </View>
+
+                {/* Fixed Withdraw Button */}
+                <View style={styles.whiteContainer}>
+                  {isProcessing ? (
+                    <Text style={styles.processingText}>
+                      Processing transfer in 5s
+                    </Text>
+                  ) : (
+                    <TouchableOpacity
+                      style={[
+                        styles.buttonWrapper,
+                        isDisabled && styles.disabledButtonWrapper,
+                        isPressed && styles.pressedButton,
+                      ]}
+                      onPressIn={() => setIsPressed(true)}
+                      onPressOut={() => setIsPressed(false)}
+                      onPress={handleWithdraw} // Updated to trigger processing state
+                      disabled={isDisabled}
+                      activeOpacity={0.8}
+                    >
+                      {!isDisabled ? (
+                        <LinearGradient
+                          colors={["#2ecc71", "#27ae60"]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={styles.gradientBackground}
+                        >
+                          <Text style={styles.buttonText}>Withdraw Amount</Text>
+                        </LinearGradient>
+                      ) : (
+                        <Text style={styles.disabledButtonText}>
+                          Withdraw Amount
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
+            )}
           </Animated.View>
         </View>
       )}
@@ -651,6 +779,7 @@ const styles = StyleSheet.create({
   walletHeading: {
     fontSize: 20,
     fontWeight: "semibold",
+
     color: "#f0f5f5",
     marginBottom: 10,
   },
@@ -852,14 +981,14 @@ const styles = StyleSheet.create({
   overlay: {
     position: "absolute",
     top: 0,
-    left: -16,
-    right: -16,
+    left: -18,
+    right: -18,
     bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)", // Semi-transparent background
     justifyContent: "flex-end",
   },
   modal: {
-    width: "99%",
+    width: "100%",
     height: "55%", // Adjust height as needed
     backgroundColor: "white",
     borderTopLeftRadius: 15,
@@ -881,7 +1010,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 18,
     marginLeft: -6,
   },
 
@@ -893,7 +1022,7 @@ const styles = StyleSheet.create({
     marginLeft: -20,
     alignItems: "flex-start",
     justifyContent: "center",
-    marginBottom: 20, // Space before the button
+    // marginBottom: 10, // Space before the button
   },
   selectPaymentModeHeading: {
     fontSize: 16,
@@ -1030,26 +1159,137 @@ const styles = StyleSheet.create({
     color: "#00b300", // Blue text color for selected amount
   },
 
-  modalWithdrawButton: {
-    position: "absolute",
-    bottom: 0,
-    left: -2,
-    right: -2,
-    backgroundColor: "#007bff",
-    padding: 15,
-    alignItems: "center",
-  },
+  // modalWithdrawButton: {
+  //   position: "absolute",
+  //   bottom: 0,
+  //   left: -2,
+  //   right: -2,
+  //   backgroundColor: "#007bff",
+  //   padding: 15,
+  //   alignItems: "center",
+  // },
 
-  modalWithdrawButtonText: {
-    color: "#fff",
+  // modalWithdrawButtonText: {
+  //   color: "#fff",
+  //   fontSize: 18,
+  //   fontWeight: "bold",
+  // },
+
+  // 🔹 Independent Container at Bottom
+  // 🔹 Independent Container at Bottom
+  whiteContainer: {
+    width: width * 1.0, // 90% of screen width (matches modal width)
+    alignSelf: "center", // Ensures it's centered
+    backgroundColor: "#ffffff",
+    borderRadius: 20, // Curved borders
+    padding: 10,
+    marginRight: "4",
+    paddingBottom: "25",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5, // Android shadow
+    marginBottom: -20, // Space from bottom
+  },
+  buttonWrapper: {
+    width: "100%", // Ensure full width inside container
+    borderRadius: 35,
+    overflow: "hidden",
+    marginTop: "15",
+    marginRight: -2,
+    // paddingBottom: "2",
+  },
+  gradientBackground: {
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontFamily: "RobotoSlab-Medium",
+
+    fontWeight: "bold",
+    textAlign: "center", // Center text
+    width: "100%", // Ensure it doesn't shrink
+  },
+  disabledButtonText: {
+    color: "#aaa", // Slightly lighter gray for visibility
     fontSize: 18,
     fontWeight: "bold",
-  },
+    fontFamily: "RobotoSlab-Medium",
 
+    textAlign: "center", // Ensures text stays centered
+    width: "100%", // Prevents text from shifting
+  },
+  disabledButtonWrapper: {
+    backgroundColor: "#d3d3d3",
+    alignItems: "center", // Ensure proper alignment
+    justifyContent: "center",
+    paddingVertical: 12, // Match normal button height
+    borderRadius: 35,
+  },
+  pressedButton: {
+    opacity: 0.8, // Adds press effect
+  },
+  processingContainer: {
+    backgroundColor: "#f0f5ef",
+    // padding: 128,
+    width: "113%",
+    height: "100%",
+    borderRadius: 10,
+    marginLeft: -20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  processingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginRight: 8,
+    // marginTop: 5,
+    // alignItems: "center",
+    // justifyContent: "center",
+  },
+  completedContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 50,
+    backgroundColor: "#f0f5ef",
+  },
+  completedHeading: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 20,
+  },
+  completedSubheading: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  doneButton: {
+    backgroundColor: "#4caf50",
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  doneButtonText: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold",
+  },
   closeButton: {
     textAlign: "center",
     color: "#000",
-    marginTop: -10,
+    marginTop: -15,
     fontSize: 25,
   },
   upiInputContainer: {

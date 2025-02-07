@@ -10,6 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/montserrat": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-community/blur": "^4.4.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
@@ -17,6 +18,7 @@
     "@react-navigation/stack": "^7.1.1",
     "emailjs-com": "^3.2.0",
     "expo": "~52.0.23",
+    "expo-app-loading": "^2.1.1",
     "expo-font": "~13.0.3",
     "expo-image-picker": "~16.0.3",
     "expo-linear-gradient": "~14.0.1",
